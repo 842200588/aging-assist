@@ -1,0 +1,122 @@
+export type AssistLocale = "zh-CN" | "en-US";
+
+export type AssistTheme = "warm" | "official" | "dark";
+
+export type SpeechRate = 0.75 | 1 | 1.25 | 1.5;
+
+export interface AssistState {
+  enabled: boolean;
+  toolbarOpen: boolean;
+  moreOpen: boolean;
+  confirming: boolean;
+  fontScale: number;
+  pageScale: number;
+  highContrast: boolean;
+  simplified: boolean;
+  largeCursor: boolean;
+  crosshair: boolean;
+  readingGuide: boolean;
+  bigText: boolean;
+  speech: boolean;
+  speechPaused: boolean;
+  speechProgress: number;
+  speechRate: SpeechRate;
+  statusMessage: string;
+  focusEnhance: boolean;
+  clickEnhance: boolean;
+  formEnhance: boolean;
+  mistakeGuard: boolean;
+  currentText: string;
+  readingIndex: number;
+}
+
+export type AssistStateKey = keyof AssistState;
+
+export interface AssistLabels {
+  launcher: string;
+  openToolbar: string;
+  closeToolbar: string;
+  enable: string;
+  exit: string;
+  reset: string;
+  fontUp: string;
+  fontDown: string;
+  pageZoomIn: string;
+  pageZoomOut: string;
+  highContrast: string;
+  simplified: string;
+  largeCursor: string;
+  crosshair: string;
+  readingGuide: string;
+  bigText: string;
+  closeBigText: string;
+  speech: string;
+  speechRate: string;
+  focusEnhance: string;
+  clickEnhance: string;
+  formEnhance: string;
+  mistakeGuard: string;
+  readPrevious: string;
+  readNext: string;
+  pauseSpeech: string;
+  continueSpeech: string;
+  more: string;
+}
+
+export interface AssistOptions {
+  trigger?: string | HTMLElement | null;
+  container?: HTMLElement | string;
+  namespace?: string;
+  storageKey?: string;
+  persist?: boolean;
+  initialState?: Partial<AssistState>;
+  locale?: AssistLocale;
+  theme?: AssistTheme;
+  labels?: Partial<AssistLabels>;
+  position?: "top" | "bottom";
+  autoMount?: boolean;
+  showLauncher?: boolean;
+  dangerousSelector?: string;
+  ignoredSelector?: string;
+  onChange?: (state: AssistState) => void;
+  onEvent?: (event: AssistEvent) => void;
+}
+
+export interface AssistEvent {
+  type:
+    | "init"
+    | "open"
+    | "close"
+    | "enable"
+    | "disable"
+    | "reset"
+    | "change"
+    | "speak"
+    | "pause"
+    | "resume"
+    | "confirm";
+  state: AssistState;
+  detail?: unknown;
+}
+
+export interface AgingAssistInstance {
+  state: AssistState;
+  mount: () => void;
+  open: () => void;
+  close: () => void;
+  enable: () => void;
+  disable: () => void;
+  reset: () => void;
+  destroy: () => void;
+  speak: (text: string) => void;
+  pauseSpeech: () => void;
+  resumeSpeech: () => void;
+  toggle: (key: AssistStateKey) => void;
+  getState: () => AssistState;
+  setState: (patch: Partial<AssistState>) => void;
+  subscribe: (listener: (state: AssistState) => void) => () => void;
+  subscribeKey: <K extends AssistStateKey>(
+    key: K,
+    listener: (value: AssistState[K], state: AssistState) => void
+  ) => () => void;
+}

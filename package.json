@@ -1,0 +1,44 @@
+{
+  "name": "aging-assist",
+  "version": "0.1.0",
+  "description": "A Vue 3 powered senior-friendly accessibility assistant SDK for websites.",
+  "type": "module",
+  "main": "./dist/aging-assist.iife.js",
+  "module": "./dist/aging-assist.es.js",
+  "types": "./dist/types/index.d.ts",
+  "unpkg": "./dist/aging-assist.iife.js",
+  "jsdelivr": "./dist/aging-assist.iife.js",
+  "sideEffects": [
+    "./dist/style.css"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/aging-assist.es.js",
+      "default": "./dist/aging-assist.iife.js"
+    },
+    "./dist/style.css": "./dist/style.css",
+    "./style.css": "./dist/style.css"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "typecheck": "vue-tsc -p tsconfig.json --noEmit",
+    "preview": "vite preview --host 127.0.0.1"
+  },
+  "dependencies": {
+    "lucide-vue-next": "^0.468.0",
+    "vue": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.0",
+    "typescript": "^5.4.0",
+    "vite": "^5.2.0",
+    "vue-tsc": "^2.0.0"
+  },
+  "license": "MIT"
+}

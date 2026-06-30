@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Aging Assist Script Example</title>
+    <link rel="stylesheet" href="../dist/style.css" />
+    <style>
+      body {
+        margin: 0;
+        padding: 40px;
+        font-family: "Microsoft YaHei", sans-serif;
+        color: #142033;
+        background: #f5f8fc;
+      }
+
+      main {
+        max-width: 760px;
+        padding: 28px;
+        border: 1px solid #d8e2f0;
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      button {
+        min-height: 48px;
+        padding: 0 18px;
+        border-radius: 8px;
+        font: inherit;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      #assist-open {
+        border: 0;
+        background: #123c7c;
+        color: #fff;
+      }
+
+      .danger {
+        border: 0;
+        background: #c81e1e;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <button id="assist-open" type="button">打开适老化</button>
+      <h1>社区服务预约</h1>
+      <p>
+        这是一个不依赖 Vue 项目的 script 接入示例。打开工具条后，可以测试大字、
+        高对比、朗读、大字幕和防误触确认。
+      </p>
+      <button class="danger" type="button" data-aging-danger="true">提交预约</button>
+    </main>
+
+    <script src="../dist/aging-assist.iife.js?v=0.1.0"></script>
+    <script>
+      window.AgingAssist.init({
+        trigger: "#assist-open",
+        dangerousSelector: "[data-aging-danger], .danger"
+      });
+    </script>
+  </body>
+</html>
