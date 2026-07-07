@@ -1,7 +1,7 @@
 {
   "name": "aging-assist",
   "version": "0.1.0",
-  "description": "A Vue 3 powered senior-friendly accessibility assistant SDK for websites.",
+  "description": "Vue 3 senior-friendly accessibility plugin for Chinese websites, with script embed, text-to-speech, large captions, high contrast and page zoom.",
   "type": "module",
   "main": "./dist/aging-assist.iife.js",
   "module": "./dist/aging-assist.es.js",
@@ -24,6 +24,31 @@
     "dist",
     "README.md"
   ],
+  "keywords": [
+    "适老化",
+    "无障碍",
+    "老年人",
+    "网站适老化",
+    "accessibility",
+    "a11y",
+    "senior-friendly",
+    "elderly",
+    "assistive-technology",
+    "vue3",
+    "vue",
+    "script",
+    "text-to-speech",
+    "large-text",
+    "high-contrast"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/842200588/aging-assist.git"
+  },
+  "bugs": {
+    "url": "https://github.com/842200588/aging-assist/issues"
+  },
+  "homepage": "https://github.com/842200588/aging-assist#readme",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build && vue-tsc -p tsconfig.build.json",
