@@ -6432,7 +6432,14 @@ class dr {
       onEnd: () => {
         this.updateSpeechProgress(1), this.stopSpeechProgressClock();
       },
-      onError: () => this.stopSpeechProgressClock()
+      onError: () => {
+        this.stopSpeechProgressClock(), this.setState({
+          speech: !1,
+          speechPaused: !1,
+          speechProgress: 0,
+          statusMessage: "朗读失败，请稍后再试"
+        });
+      }
     })) {
       this.setState({
         speech: !1,

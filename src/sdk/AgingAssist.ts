@@ -538,7 +538,15 @@ export class AgingAssist implements AgingAssistInstance {
         this.updateSpeechProgress(1);
         this.stopSpeechProgressClock();
       },
-      onError: () => this.stopSpeechProgressClock()
+      onError: () => {
+        this.stopSpeechProgressClock();
+        this.setState({
+          speech: false,
+          speechPaused: false,
+          speechProgress: 0,
+          statusMessage: "朗读失败，请稍后再试"
+        });
+      }
     });
     if (!started) {
       this.setState({

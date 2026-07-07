@@ -81,15 +81,21 @@ const DemoApp = defineComponent({
             h("form", { class: "service-form", "data-aging-readable": "true" }, [
               h("label", { class: "field" }, [
                 h("span", "姓名"),
-                h("input", { placeholder: "请输入姓名", autocomplete: "name" })
+                h("input", { name: "name", placeholder: "请输入姓名", autocomplete: "name" })
               ]),
               h("label", { class: "field" }, [
                 h("span", "手机号"),
-                h("input", { placeholder: "请输入手机号", type: "tel", autocomplete: "tel" })
+                h("input", {
+                  name: "phone",
+                  placeholder: "请输入手机号",
+                  type: "tel",
+                  inputmode: "tel",
+                  autocomplete: "tel"
+                })
               ]),
               h("label", { class: "field wide" }, [
                 h("span", "办理事项"),
-                h("select", [
+                h("select", { name: "service" }, [
                   h("option", "养老补贴资格咨询"),
                   h("option", "社区上门服务预约"),
                   h("option", "医保窗口协助办理")
