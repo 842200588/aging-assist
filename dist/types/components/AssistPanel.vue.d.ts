@@ -3,6 +3,8 @@ type __VLS_Props = {
     state: AssistState;
     labels: AssistLabels;
     position: "top" | "bottom";
+    theme: "warm" | "official" | "dark";
+    idPrefix: string;
     showLauncher: boolean;
 };
 declare const _default: import("vue").DefineComponent<__VLS_Props, {}, {}, {}, {}, import("vue").ComponentOptionsMixin, import("vue").ComponentOptionsMixin, {

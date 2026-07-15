@@ -22,22 +22,27 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
 export function getReadableText(target: Element | null): string {
   if (!target) return "";
   if (target.closest("[data-aging-assist-root]")) return "";
-  const readable = target.closest<HTMLElement>("[data-aging-readable], [data-aging-text]");
-  if (readable && readable !== target && !isFormControl(target)) {
-    return getReadableText(readable);
-  }
-  const explicit = target.getAttribute("data-aging-text") || target.getAttribute("data-aging-label");
-  const ariaLabel = target.getAttribute("aria-label");
-  const title = target.getAttribute("title");
+  const semanticTarget =
+    target.closest<HTMLElement>(
+      "[data-aging-text], [data-aging-label], button, a, label, input, textarea, select, img, h1, h2, h3, h4, h5, h6, p, li, td, th, summary, [role='button'], [title], [aria-label]"
+    ) ?? target;
+  const readable = semanticTarget.closest<HTMLElement>("[data-aging-readable], [data-aging-text]");
+  const source =
+    readable && readable !== semanticTarget && !isFormControl(semanticTarget)
+      ? readable
+      : semanticTarget;
+  const explicit = source.getAttribute("data-aging-text") || source.getAttribute("data-aging-label");
+  const ariaLabel = source.getAttribute("aria-label");
+  const title = source.getAttribute("title");
   const alt =
-    target instanceof HTMLImageElement ? target.getAttribute("alt") : "";
+    source instanceof HTMLImageElement ? source.getAttribute("alt") : "";
   const value =
-    target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement
-      ? target.value || target.placeholder
-      : target instanceof HTMLSelectElement
-        ? target.selectedOptions[0]?.textContent || target.value
+    source instanceof HTMLInputElement || source instanceof HTMLTextAreaElement
+      ? source.value || source.placeholder
+      : source instanceof HTMLSelectElement
+        ? source.selectedOptions[0]?.textContent || source.value
         : "";
-  const text = target.textContent || "";
+  const text = source.textContent || "";
   return cleanText(explicit || ariaLabel || title || alt || value || text);
 }
 
@@ -45,6 +50,7 @@ export function cleanText(text: string): string {
   return text
     .replace(/\s+/g, " ")
     .replace(/[|_~`^*#<>[\]{}\\]/g, "")
+    .replace(/\s+/g, " ")
     .trim()
     .slice(0, 240);
 }

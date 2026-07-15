@@ -1,7 +1,13 @@
 import { createApp, reactive } from "vue";
 import type { App } from "vue";
 import AssistPanel from "./components/AssistPanel.vue";
-import { DEFAULT_NAMESPACE, DEFAULT_STORAGE_KEY, defaultState, labelsZhCn } from "./constants";
+import {
+  DEFAULT_NAMESPACE,
+  DEFAULT_STORAGE_KEY,
+  defaultState,
+  labelsEnUs,
+  labelsZhCn
+} from "./constants";
 import "./styles/effects.css";
 import "./styles/panel.css";
 import type {
@@ -11,11 +17,15 @@ import type {
   AssistOptions,
   AssistState,
   AssistStateKey,
+  AssistToggleKey,
   SpeechRate
 } from "./types";
 import { clearState, loadState, saveState } from "./utils/storage";
 import { cleanText, createElement, getReadableBlocks, getReadableText, resolveElement } from "./utils/dom";
 import { SpeechController } from "./utils/speech";
+import { enforceStateInvariants, normalizeStatePatch } from "./utils/state";
+
+let activeInstance: AgingAssist | null = null;
 
 export class AgingAssist implements AgingAssistInstance {
   public state: AssistState;
@@ -60,7 +70,6 @@ export class AgingAssist implements AgingAssistInstance {
   private lastSpokenText = "";
   private destroyed = false;
   private originalBodyPaddingBottom: string | null = null;
-  private bigTextReserveApplied = false;
   private speechProgressTimer = 0;
   private speechProgressStartedAt = 0;
   private speechProgressElapsed = 0;
@@ -69,6 +78,15 @@ export class AgingAssist implements AgingAssistInstance {
   private hoverTarget: Element | null = null;
   private crosshairFrame = 0;
   private crosshairPoint: { x: number; y: number } | null = null;
+  private toolbarHeight = 0;
+  private originalBodyPaddingTop: string | null = null;
+  private toolbarReturnFocus: HTMLElement | null = null;
+  private pendingMount = false;
+
+  private readonly onDocumentReady = () => {
+    this.pendingMount = false;
+    this.mount();
+  };
 
   private readonly onTriggerClick = (event: Event) => {
     event.preventDefault();
@@ -81,6 +99,16 @@ export class AgingAssist implements AgingAssistInstance {
 
   private readonly onMouseOver = (event: MouseEvent) => {
     this.queueHover(event.target as Element | null);
+  };
+
+  private readonly onFocusIn = (event: FocusEvent) => {
+    this.handleDirectTarget(event.target as Element | null);
+  };
+
+  private readonly onPointerUp = (event: PointerEvent) => {
+    if (event.pointerType === "touch" || event.pointerType === "pen") {
+      this.handleDirectTarget(event.target as Element | null);
+    }
   };
 
   private readonly onDangerClick = (event: MouseEvent) => {
@@ -152,7 +180,7 @@ export class AgingAssist implements AgingAssistInstance {
     this.state = reactive({
       ...defaultState,
       ...savedState,
-      ...initialState,
+      ...normalizeStatePatch(initialState),
       currentText: "",
       confirming: false,
       toolbarOpen: false,
@@ -164,7 +192,7 @@ export class AgingAssist implements AgingAssistInstance {
       readingIndex: -1
     }) as AssistState;
     this.labels = {
-      ...labelsZhCn,
+      ...(this.options.locale === "en-US" ? labelsEnUs : labelsZhCn),
       ...options.labels
     };
     if (this.options.autoMount) this.mount();
@@ -172,16 +200,32 @@ export class AgingAssist implements AgingAssistInstance {
 
   mount(): void {
     if (this.app || this.destroyed) return;
+    if (activeInstance && activeInstance !== this && !activeInstance.destroyed) {
+      throw new Error(
+        "Aging Assist already has an active instance. Destroy it before mounting another instance."
+      );
+    }
+    const container = resolveElement(this.options.container) ?? document.body;
+    if (!container) {
+      activeInstance = this;
+      if (!this.pendingMount) {
+        this.pendingMount = true;
+        document.addEventListener("DOMContentLoaded", this.onDocumentReady, { once: true });
+      }
+      return;
+    }
+    activeInstance = this;
     this.host = createElement("div", {
       id: `${this.options.namespace}-root`,
       "data-aging-assist-root": "true"
     });
-    const container = resolveElement(this.options.container) ?? document.body;
     container.appendChild(this.host);
     this.app = createApp(AssistPanel, {
       state: this.state,
       labels: this.labels,
       position: this.options.position,
+      theme: this.options.theme,
+      idPrefix: this.options.namespace,
       showLauncher: this.options.showLauncher,
       onAction: (name: string, value?: unknown) => this.handleAction(name, value)
     });
@@ -193,17 +237,22 @@ export class AgingAssist implements AgingAssistInstance {
   }
 
   open(): void {
+    this.captureToolbarReturnFocus();
     this.setState({ enabled: true, toolbarOpen: true });
+    this.focusToolbar();
     this.emit("open");
   }
 
   close(): void {
     this.setState({ toolbarOpen: false, moreOpen: false });
+    this.restoreToolbarFocus();
     this.emit("close");
   }
 
   enable(): void {
+    this.captureToolbarReturnFocus();
     this.setState({ enabled: true, toolbarOpen: true });
+    this.focusToolbar();
     this.emit("enable");
   }
 
@@ -221,6 +270,7 @@ export class AgingAssist implements AgingAssistInstance {
     });
     if (this.options.persist) clearState(this.options.storageKey);
     this.applyEffects();
+    this.restoreToolbarFocus();
     this.emit("disable");
   }
 
@@ -241,6 +291,8 @@ export class AgingAssist implements AgingAssistInstance {
 
   destroy(): void {
     this.destroyed = true;
+    document.removeEventListener("DOMContentLoaded", this.onDocumentReady);
+    this.pendingMount = false;
     this.speech.stop();
     this.stopSpeechProgressClock();
     this.clearHoverTimer();
@@ -251,6 +303,8 @@ export class AgingAssist implements AgingAssistInstance {
     this.unbindTrigger();
     document.removeEventListener("mousemove", this.onMouseMove);
     document.removeEventListener("mouseover", this.onMouseOver);
+    document.removeEventListener("focusin", this.onFocusIn);
+    document.removeEventListener("pointerup", this.onPointerUp);
     document.removeEventListener("click", this.onDangerClick, true);
     document.removeEventListener("submit", this.onDangerSubmit, true);
     this.app?.unmount();
@@ -258,6 +312,7 @@ export class AgingAssist implements AgingAssistInstance {
     this.app = null;
     this.host = null;
     this.removeRootEffects();
+    if (activeInstance === this) activeInstance = null;
   }
 
   speak(text: string): void {
@@ -293,11 +348,16 @@ export class AgingAssist implements AgingAssistInstance {
   }
 
   setState(patch: Partial<AssistState>): void {
-    Object.assign(this.state, patch);
+    const normalizedPatch = normalizeStatePatch(patch);
+    if (!Object.keys(normalizedPatch).length) return;
+    const previousState = this.getState();
+    const nextState = enforceStateInvariants({ ...this.state, ...normalizedPatch });
+    Object.assign(this.state, nextState);
+    this.reconcileStateEffects(previousState, nextState);
     this.applyEffects();
     this.persist();
     this.notify();
-    this.emit("change", patch);
+    this.emit("change", normalizedPatch);
   }
 
   subscribe(listener: (state: AssistState) => void): () => void {
@@ -309,9 +369,13 @@ export class AgingAssist implements AgingAssistInstance {
     key: K,
     listener: (value: AssistState[K], state: AssistState) => void
   ): () => void {
-    listener(this.state[key], this.getState());
+    let previous = this.state[key];
+    listener(previous, this.getState());
     return this.subscribe((state) => {
-      listener(state[key], state);
+      const next = state[key];
+      if (Object.is(previous, next)) return;
+      previous = next;
+      listener(next, state);
     });
   }
 
@@ -342,11 +406,13 @@ export class AgingAssist implements AgingAssistInstance {
         this.setState({ pageScale: clamp(this.state.pageScale - 0.05, 1, 1.3) });
         break;
       case "toggle":
-        this.toggle(value as AssistStateKey);
+        if (isAssistToggleKey(value)) this.toggle(value);
         break;
       case "setBoolean": {
-        const payload = value as { key: AssistStateKey; value: boolean };
-        if (payload?.key) this.setBoolean(payload.key, payload.value);
+        const payload = value as { key?: unknown; value?: unknown };
+        if (isAssistToggleKey(payload?.key) && typeof payload.value === "boolean") {
+          this.setBoolean(payload.key, payload.value);
+        }
         break;
       }
       case "toggleMore":
@@ -355,6 +421,12 @@ export class AgingAssist implements AgingAssistInstance {
       case "rate":
         this.setState({ speechRate: value as SpeechRate });
         if (this.state.currentText && this.state.speech) this.speak(this.state.currentText);
+        break;
+      case "toolbarResize":
+        if (typeof value === "number" && Number.isFinite(value)) {
+          this.toolbarHeight = Math.max(0, value);
+          this.applyEffects();
+        }
         break;
       case "readPrevious":
         this.readOffset(-1);
@@ -377,7 +449,7 @@ export class AgingAssist implements AgingAssistInstance {
     }
   }
 
-  toggle(key: AssistStateKey): void {
+  toggle(key: AssistToggleKey): void {
     const value = this.state[key];
     if (typeof value !== "boolean") return;
     if (key === "speech") {
@@ -399,7 +471,7 @@ export class AgingAssist implements AgingAssistInstance {
     this.setState(patch);
   }
 
-  private setBoolean(key: AssistStateKey, value: boolean): void {
+  private setBoolean(key: AssistToggleKey, value: boolean): void {
     this.setState({ [key]: value } as Partial<AssistState>);
   }
 
@@ -435,6 +507,8 @@ export class AgingAssist implements AgingAssistInstance {
   private bindDocumentEvents(): void {
     document.addEventListener("mousemove", this.onMouseMove);
     document.addEventListener("mouseover", this.onMouseOver);
+    document.addEventListener("focusin", this.onFocusIn);
+    document.addEventListener("pointerup", this.onPointerUp);
     document.addEventListener("click", this.onDangerClick, true);
     document.addEventListener("submit", this.onDangerSubmit, true);
   }
@@ -498,6 +572,15 @@ export class AgingAssist implements AgingAssistInstance {
     }, 220);
   }
 
+  private handleDirectTarget(target: Element | null): void {
+    this.clearHoverTimer();
+    if (!this.state.enabled || !target || target.closest(this.options.ignoredSelector)) return;
+    if (!this.state.readingGuide && !this.state.bigText && !this.state.speech) return;
+    const text = getReadableText(target);
+    if (!text) return;
+    this.applyHoverTarget(target, text, this.state.speech && text !== this.lastSpokenText);
+  }
+
   private clearHoverTimer(): void {
     if (this.hoverTimer) window.clearTimeout(this.hoverTimer);
     this.hoverTimer = 0;
@@ -532,7 +615,7 @@ export class AgingAssist implements AgingAssistInstance {
 
   private speakText(text: string): void {
     this.stopSpeechProgressClock();
-    const started = this.speech.speak(text, this.state.speechRate, {
+    const started = this.speech.speak(text, this.state.speechRate, this.options.locale, {
       onBoundary: (progress) => this.updateSpeechProgress(progress),
       onEnd: () => {
         this.updateSpeechProgress(1);
@@ -544,7 +627,7 @@ export class AgingAssist implements AgingAssistInstance {
           speech: false,
           speechPaused: false,
           speechProgress: 0,
-          statusMessage: "朗读失败，请稍后再试"
+          statusMessage: this.labels.speechFailed
         });
       }
     });
@@ -553,7 +636,7 @@ export class AgingAssist implements AgingAssistInstance {
         speech: false,
         speechPaused: false,
         speechProgress: 0,
-        statusMessage: "当前浏览器不支持朗读"
+        statusMessage: this.labels.speechUnsupported
       });
       return;
     }
@@ -655,20 +738,20 @@ export class AgingAssist implements AgingAssistInstance {
     this.pendingDangerAction = action;
     this.setState({ confirming: true });
     target.classList.add("aging-assist-danger-focus");
-    window.setTimeout(() => {
-      this.host?.querySelector<HTMLButtonElement>("[data-aging-confirm-primary]")?.focus();
-    });
   }
 
   private applyEffects(): void {
     const root = document.documentElement;
-    const shouldReserveBigTextSpace = this.state.enabled && this.state.bigText;
+    const shouldReserveTop =
+      this.state.enabled && this.state.toolbarOpen && this.options.position === "top";
+    const shouldReserveBottom =
+      this.state.enabled &&
+      (this.state.bigText || (this.state.toolbarOpen && this.options.position === "bottom"));
 
-    if (
-      shouldReserveBigTextSpace &&
-      !this.bigTextReserveApplied &&
-      document.body
-    ) {
+    if (shouldReserveTop && this.originalBodyPaddingTop === null && document.body) {
+      this.originalBodyPaddingTop = window.getComputedStyle(document.body).paddingTop || "0px";
+    }
+    if (shouldReserveBottom && this.originalBodyPaddingBottom === null && document.body) {
       this.originalBodyPaddingBottom = window.getComputedStyle(document.body).paddingBottom || "0px";
     }
 
@@ -681,20 +764,32 @@ export class AgingAssist implements AgingAssistInstance {
     root.dataset.agingForm = String(this.state.formEnhance);
     root.dataset.agingMistakeGuard = String(this.state.mistakeGuard);
     root.dataset.agingBigText = String(this.state.bigText);
+    root.dataset.agingToolbarOpen = String(this.state.toolbarOpen);
     root.dataset.agingToolbarPosition = this.options.position;
     root.dataset.agingFontScale = String(this.state.fontScale);
     root.style.setProperty("--aging-assist-font-scale", String(this.state.fontScale));
     root.style.setProperty("--aging-assist-page-scale", String(this.state.pageScale));
     root.style.setProperty(
+      "--aging-assist-toolbar-reserve",
+      `${this.toolbarHeight / this.state.pageScale}px`
+    );
+    root.style.setProperty(
+      "--aging-assist-body-padding-top",
+      this.originalBodyPaddingTop ?? "0px"
+    );
+    root.style.setProperty(
       "--aging-assist-body-padding-bottom",
       this.originalBodyPaddingBottom ?? "0px"
     );
 
-    if (!shouldReserveBigTextSpace && this.bigTextReserveApplied) {
+    if (!shouldReserveTop && this.originalBodyPaddingTop !== null) {
+      this.originalBodyPaddingTop = null;
+      root.style.setProperty("--aging-assist-body-padding-top", "0px");
+    }
+    if (!shouldReserveBottom && this.originalBodyPaddingBottom !== null) {
       this.originalBodyPaddingBottom = null;
       root.style.setProperty("--aging-assist-body-padding-bottom", "0px");
     }
-    this.bigTextReserveApplied = shouldReserveBigTextSpace;
 
     if (this.host) {
       this.host.style.zoom = String(1 / this.state.pageScale);
@@ -713,6 +808,7 @@ export class AgingAssist implements AgingAssistInstance {
       "agingForm",
       "agingMistakeGuard",
       "agingBigText",
+      "agingToolbarOpen",
       "agingToolbarPosition",
       "agingFontScale"
     ].forEach((key) => {
@@ -720,9 +816,11 @@ export class AgingAssist implements AgingAssistInstance {
     });
     root.style.removeProperty("--aging-assist-font-scale");
     root.style.removeProperty("--aging-assist-page-scale");
+    root.style.removeProperty("--aging-assist-toolbar-reserve");
+    root.style.removeProperty("--aging-assist-body-padding-top");
     root.style.removeProperty("--aging-assist-body-padding-bottom");
+    this.originalBodyPaddingTop = null;
     this.originalBodyPaddingBottom = null;
-    this.bigTextReserveApplied = false;
     if (this.host) {
       this.host.style.zoom = "";
     }
@@ -762,6 +860,47 @@ export class AgingAssist implements AgingAssistInstance {
       detail
     });
   }
+
+  private captureToolbarReturnFocus(): void {
+    if (this.state.toolbarOpen) return;
+    const active = document.activeElement;
+    this.toolbarReturnFocus = active instanceof HTMLElement ? active : null;
+  }
+
+  private focusToolbar(): void {
+    window.setTimeout(() => {
+      this.host?.querySelector<HTMLButtonElement>(".aging-assist-control")?.focus();
+    });
+  }
+
+  private restoreToolbarFocus(): void {
+    window.setTimeout(() => {
+      if (this.toolbarReturnFocus?.isConnected) {
+        this.toolbarReturnFocus.focus();
+      } else {
+        this.host?.querySelector<HTMLButtonElement>(".aging-assist-launcher")?.focus();
+      }
+      this.toolbarReturnFocus = null;
+    });
+  }
+
+  private reconcileStateEffects(previous: AssistState, next: AssistState): void {
+    if ((previous.speech && !next.speech) || !next.enabled) {
+      this.speech.stop();
+      this.stopSpeechProgressClock();
+      this.clearHoverTimer();
+    }
+    if (previous.readingGuide && !next.readingGuide) this.clearReadTarget();
+    if (previous.confirming && !next.confirming && this.pendingDanger) {
+      this.pendingDanger.classList.remove("aging-assist-danger-focus");
+      this.pendingDanger = null;
+      this.pendingDangerAction = null;
+    }
+  }
+
+  static getActiveInstance(): AgingAssist | null {
+    return activeInstance && !activeInstance.destroyed ? activeInstance : null;
+  }
 }
 
 function clamp(value: number, min: number, max: number): number {
@@ -771,4 +910,20 @@ function clamp(value: number, min: number, max: number): number {
 function estimateSpeechDuration(text: string, rate: SpeechRate): number {
   const compactLength = Math.max(text.replace(/\s+/g, "").length, 8);
   return Math.max(2600, (compactLength * 210) / rate);
+}
+
+function isAssistToggleKey(value: unknown): value is AssistToggleKey {
+  return [
+    "highContrast",
+    "simplified",
+    "largeCursor",
+    "crosshair",
+    "readingGuide",
+    "bigText",
+    "speech",
+    "focusEnhance",
+    "clickEnhance",
+    "formEnhance",
+    "mistakeGuard"
+  ].includes(value as AssistToggleKey);
 }

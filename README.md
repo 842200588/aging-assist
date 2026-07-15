@@ -11,7 +11,7 @@
 - 一键开启、收起、重置、退出服务
 - 文字放大 / 缩小，页面整体缩放
 - 高对比、简洁模式、大鼠标、十字线
-- 指读高亮、大字幕、语音朗读、语速切换
+- 鼠标、触屏和键盘焦点指读，大字幕、语音朗读、语速切换
 - 上一段 / 下一段阅读队列
 - 焦点增强、点击目标增强、表单辅助
 - 危险操作防误触二次确认
@@ -28,7 +28,7 @@
 <link rel="stylesheet" href="/dist/style.css" />
 <script src="/dist/aging-assist.iife.js"></script>
 <script>
-  const assist = window.AgingAssist.init({
+const assist = window.AgingAssist.init({
     trigger: "#assist-open",
     position: "top",
     dangerousSelector: "[data-aging-danger], .danger, .delete"
@@ -63,6 +63,8 @@ const assist = createAgingAssist({
   }
 });
 ```
+
+同一页面只维护一个活动实例。重复调用 `createAgingAssist()` / `init()` 会返回现有实例；如需重新配置，请先调用 `assist.destroy()`。
 
 ## API
 
@@ -100,13 +102,28 @@ const stopZoom = assist.subscribeKey("pageScale", (value, nextState) => {
 | `storageKey` | `string` | `aging-assist-state` | 本地存储 key。 |
 | `persist` | `boolean` | `true` | 是否记忆用户偏好。 |
 | `initialState` | `Partial<AssistState>` | `{}` | 初始功能状态。 |
+| `locale` | `zh-CN | en-US` | `zh-CN` | 工具条文案和朗读语言。 |
+| `theme` | `warm | official | dark` | `warm` | 内置暖色、政务和深色主题。 |
 | `position` | `top | bottom` | `top` | 工具条位置。 |
+| `autoMount` | `boolean` | `true` | 是否在创建后自动挂载。页面尚未就绪时会等待 DOM。 |
 | `showLauncher` | `boolean` | `true` | 是否显示内置悬浮入口。 |
 | `dangerousSelector` | `string` | see source | 需要防误触保护的元素。 |
 | `ignoredSelector` | `string` | see source | 指读、朗读、大字幕忽略区域。 |
 | `labels` | `Partial<AssistLabels>` | 中文文案 | 覆盖 UI 文案。 |
 | `onChange` | `(state) => void` | `undefined` | 状态变化回调。 |
 | `onEvent` | `(event) => void` | `undefined` | 生命周期和操作事件。 |
+
+传入 `setState()` 和本地存储的状态会在运行时校验。缩放、语速、进度和字段类型不合法时不会破坏页面；`subscribeKey()` 只在指定字段真正变化时通知。
+
+## 无障碍行为
+
+- 工具条打开时会按实际高度为业务页面预留空间，顶部和底部模式都不会覆盖正文。
+- 状态按钮提供 `aria-pressed`，更多设置提供展开关系，状态消息使用实时区域。
+- 指读、大字幕和朗读同时响应鼠标悬停、键盘焦点、触摸和手写笔。
+- 防误触确认框具备标题和说明关联、初始焦点、Tab 焦点循环、Escape 取消和焦点归还。
+- 页面缩放后工具条保持原始可操作尺寸；大字幕开启时仍允许点击底层业务页面。
+
+这些能力不能替代业务页面本身的语义 HTML、键盘可达性和 WCAG 测试。接入方仍应保留正确的标题层级、表单标签、替代文本与错误提示。
 
 ## 页面标注规范
 
@@ -143,12 +160,22 @@ const stopZoom = assist.subscribeKey("pageScale", (value, nextState) => {
 npm install
 npm run dev
 npm run typecheck
+npm run test:run
+npm run test:coverage
 npm run build
+npm run audit:prod
+npm run check
 ```
 
 Vite demo 会展示 script 场景、表单场景、标注规则、防误触确认和状态订阅。
 
 构建后也可以直接打开 `examples/script.html`，验证老网站 script-only 接入方式。
+
+`npm run check` 是合并和发布前的统一门槛；仓库中的 GitHub Actions 会在推送和拉取请求上执行类型检查、测试、覆盖率、构建和生产依赖安全审计。
+
+## 浏览器范围
+
+支持当前维护版本的 Chrome、Edge、Firefox 和 Safari。语音朗读依赖浏览器 `SpeechSynthesis` 与本机可用语音；不支持时会显示明确状态，不影响其他功能。构建目标为 ES2020，不支持 Internet Explorer。
 
 ## License
 

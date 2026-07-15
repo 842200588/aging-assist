@@ -1,4 +1,4 @@
-import type { SpeechRate } from "../types";
+import type { AssistLocale, SpeechRate } from "../types";
 
 export interface SpeechCallbacks {
   onStart?: () => void;
@@ -14,17 +14,22 @@ export class SpeechController {
     return typeof window !== "undefined" && "speechSynthesis" in window;
   }
 
-  speak(text: string, rate: SpeechRate, callbacks: SpeechCallbacks = {}): boolean {
+  speak(
+    text: string,
+    rate: SpeechRate,
+    locale: AssistLocale,
+    callbacks: SpeechCallbacks = {}
+  ): boolean {
     if (!this.supported || !text) return false;
     this.stop();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "zh-CN";
+    utterance.lang = locale;
     utterance.rate = rate;
     utterance.pitch = 1;
     utterance.volume = 1;
     const voice = window.speechSynthesis
       .getVoices()
-      .find((item) => item.lang.toLowerCase().startsWith("zh"));
+      .find((item) => item.lang.toLowerCase().startsWith(locale.slice(0, 2).toLowerCase()));
     if (voice) utterance.voice = voice;
     utterance.onstart = () => callbacks.onStart?.();
     utterance.onboundary = (event) => {

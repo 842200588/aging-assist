@@ -6,5 +6,6 @@
     "emitDeclarationOnly": true,
     "noEmit": false
   },
-  "include": ["src/sdk/**/*.ts", "src/sdk/**/*.vue"]
+  "include": ["src/sdk/**/*.ts", "src/sdk/**/*.vue"],
+  "exclude": ["src/**/*.test.ts", "src/test/**"]
 }

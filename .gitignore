@@ -12,6 +12,7 @@ yarn-error.log*
 pnpm-debug.log*
 
 .playwright-cli/
+coverage/
 
 .DS_Store
 Thumbs.db

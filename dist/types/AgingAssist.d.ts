@@ -1,6 +1,6 @@
 import "./styles/effects.css";
 import "./styles/panel.css";
-import type { AgingAssistInstance, AssistOptions, AssistState, AssistStateKey } from "./types";
+import type { AgingAssistInstance, AssistOptions, AssistState, AssistStateKey, AssistToggleKey } from "./types";
 export declare class AgingAssist implements AgingAssistInstance {
     state: AssistState;
     private readonly options;
@@ -15,7 +15,6 @@ export declare class AgingAssist implements AgingAssistInstance {
     private lastSpokenText;
     private destroyed;
     private originalBodyPaddingBottom;
-    private bigTextReserveApplied;
     private speechProgressTimer;
     private speechProgressStartedAt;
     private speechProgressElapsed;
@@ -24,9 +23,16 @@ export declare class AgingAssist implements AgingAssistInstance {
     private hoverTarget;
     private crosshairFrame;
     private crosshairPoint;
+    private toolbarHeight;
+    private originalBodyPaddingTop;
+    private toolbarReturnFocus;
+    private pendingMount;
+    private readonly onDocumentReady;
     private readonly onTriggerClick;
     private readonly onMouseMove;
     private readonly onMouseOver;
+    private readonly onFocusIn;
+    private readonly onPointerUp;
     private readonly onDangerClick;
     private readonly onDangerSubmit;
     constructor(options?: AssistOptions);
@@ -45,7 +51,7 @@ export declare class AgingAssist implements AgingAssistInstance {
     subscribe(listener: (state: AssistState) => void): () => void;
     subscribeKey<K extends AssistStateKey>(key: K, listener: (value: AssistState[K], state: AssistState) => void): () => void;
     private handleAction;
-    toggle(key: AssistStateKey): void;
+    toggle(key: AssistToggleKey): void;
     private setBoolean;
     private readOffset;
     private bindTrigger;
@@ -55,6 +61,7 @@ export declare class AgingAssist implements AgingAssistInstance {
     private queueCrosshairUpdate;
     private updateCrosshair;
     private queueHover;
+    private handleDirectTarget;
     private clearHoverTimer;
     private applyHoverTarget;
     private speakText;
@@ -74,4 +81,9 @@ export declare class AgingAssist implements AgingAssistInstance {
     private persist;
     private notify;
     private emit;
+    private captureToolbarReturnFocus;
+    private focusToolbar;
+    private restoreToolbarFocus;
+    private reconcileStateEffects;
+    static getActiveInstance(): AgingAssist | null;
 }

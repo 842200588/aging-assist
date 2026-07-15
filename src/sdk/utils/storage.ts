@@ -1,9 +1,10 @@
 import type { AssistState } from "../types";
+import { normalizeStatePatch } from "./state";
 
 export function loadState(key: string): Partial<AssistState> {
   try {
     const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as Partial<AssistState>) : {};
+    return raw ? normalizeStatePatch(JSON.parse(raw)) : {};
   } catch {
     return {};
   }

@@ -33,6 +33,8 @@ const props = defineProps<{
   state: AssistState;
   labels: AssistLabels;
   position: "top" | "bottom";
+  theme: "warm" | "official" | "dark";
+  idPrefix: string;
   showLauncher: boolean;
 }>();
 
@@ -40,14 +42,22 @@ const emit = defineEmits<{
   action: [name: string, value?: unknown];
 }>();
 
-const rates: Array<{ label: string; value: SpeechRate }> = [
-  { label: "慢速", value: 0.75 },
-  { label: "标准", value: 1 },
-  { label: "较快", value: 1.25 },
-  { label: "快速", value: 1.5 }
-];
+const rates = computed<Array<{ label: string; value: SpeechRate }>>(() => [
+  { label: props.labels.slowRate, value: 0.75 },
+  { label: props.labels.standardRate, value: 1 },
+  { label: props.labels.fasterRate, value: 1.25 },
+  { label: props.labels.fastRate, value: 1.5 }
+]);
 
 const bigTextScroller = ref<HTMLElement | null>(null);
+const toolbar = ref<HTMLElement | null>(null);
+const confirmDialog = ref<HTMLElement | null>(null);
+const modalReturnFocus = ref<HTMLElement | null>(null);
+const confirmTitleId = computed(() => `${props.idPrefix}-confirm-title`);
+const confirmDescriptionId = computed(() => `${props.idPrefix}-confirm-description`);
+const settingsTitleId = computed(() => `${props.idPrefix}-settings-title`);
+const settingsId = computed(() => `${props.idPrefix}-settings`);
+const rateId = computed(() => `${props.idPrefix}-rate`);
 const scrollProgress = ref(0);
 const scrollTargetTop = ref(0);
 const scrollAnimationFrame = ref(0);
@@ -66,7 +76,7 @@ type TextLineMetric = {
 };
 
 const bigTextContent = computed(
-  () => props.state.currentText || "移动鼠标到文字上，这里会显示大字幕。"
+  () => props.state.currentText || props.labels.bigTextHint
 );
 const shouldFollowSpeechScroll = computed(
   () => props.state.bigText && props.state.speech && !props.state.speechPaused
@@ -357,9 +367,88 @@ watch(
   }
 );
 
-onMounted(startPlainAutoScrollMonitor);
+let toolbarObserver: ResizeObserver | null = null;
+
+function reportToolbarHeight() {
+  action("toolbarResize", toolbar.value?.getBoundingClientRect().height ?? 0);
+}
+
+function connectToolbarObserver() {
+  toolbarObserver?.disconnect();
+  toolbarObserver = null;
+  reportToolbarHeight();
+  if (!toolbar.value || typeof ResizeObserver === "undefined") return;
+  toolbarObserver = new ResizeObserver(reportToolbarHeight);
+  toolbarObserver.observe(toolbar.value);
+}
+
+function handleWindowResize() {
+  nextTick(connectToolbarObserver);
+}
+
+function handleConfirmKeydown(event: KeyboardEvent) {
+  if (event.key === "Escape") {
+    event.preventDefault();
+    action("cancelDanger");
+    return;
+  }
+  if (event.key !== "Tab" || !confirmDialog.value) return;
+  const focusable = Array.from(
+    confirmDialog.value.querySelectorAll<HTMLElement>(
+      "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])"
+    )
+  ).filter((element) => !element.hidden);
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (!first || !last) return;
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+watch(
+  () => props.state.toolbarOpen,
+  async (open) => {
+    await nextTick();
+    if (open) connectToolbarObserver();
+    else {
+      toolbarObserver?.disconnect();
+      toolbarObserver = null;
+      action("toolbarResize", 0);
+    }
+  }
+);
+
+watch(
+  () => props.state.confirming,
+  async (confirming) => {
+    if (confirming) {
+      const active = document.activeElement;
+      modalReturnFocus.value = active instanceof HTMLElement ? active : null;
+      await nextTick();
+      confirmDialog.value?.querySelector<HTMLButtonElement>("[data-aging-confirm-primary]")?.focus();
+      return;
+    }
+    await nextTick();
+    if (modalReturnFocus.value?.isConnected) modalReturnFocus.value.focus();
+    modalReturnFocus.value = null;
+  }
+);
+
+onMounted(() => {
+  startPlainAutoScrollMonitor();
+  window.addEventListener("resize", handleWindowResize);
+  if (props.state.toolbarOpen) nextTick(connectToolbarObserver);
+});
 
 onBeforeUnmount(() => {
+  window.removeEventListener("resize", handleWindowResize);
+  toolbarObserver?.disconnect();
+  action("toolbarResize", 0);
   stopPlainAutoScrollMonitor();
   stopBigTextScroll();
   stopPlainAutoScroll();
@@ -367,7 +456,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="aging-assist-root" data-aging-assist-root>
+  <div class="aging-assist-root" data-aging-assist-root :data-theme="theme">
     <button
       v-if="showLauncher && !state.toolbarOpen"
       class="aging-assist-launcher"
@@ -381,6 +470,7 @@ onBeforeUnmount(() => {
 
     <section
       v-if="state.toolbarOpen"
+      ref="toolbar"
       class="aging-assist-toolbar"
       :class="position === 'bottom' ? 'is-bottom' : 'is-top'"
       :aria-label="labels.launcher"
@@ -392,7 +482,7 @@ onBeforeUnmount(() => {
           </div>
           <div class="aging-assist-title">
             <strong>{{ labels.launcher }}</strong>
-            <span>更清楚，更好点，更安心</span>
+            <span>{{ labels.tagline }}</span>
           </div>
         </div>
 
@@ -406,6 +496,7 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.speech }"
+              :aria-pressed="state.speech"
               @click="action('toggle', 'speech')"
             >
               <Volume2 />
@@ -463,6 +554,7 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.highContrast }"
+              :aria-pressed="state.highContrast"
               @click="action('toggle', 'highContrast')"
             >
               <Contrast />
@@ -472,6 +564,7 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.largeCursor }"
+              :aria-pressed="state.largeCursor"
               @click="action('toggle', 'largeCursor')"
             >
               <MousePointer2 />
@@ -481,6 +574,7 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.crosshair }"
+              :aria-pressed="state.crosshair"
               @click="action('toggle', 'crosshair')"
             >
               <Crosshair />
@@ -490,6 +584,7 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.readingGuide }"
+              :aria-pressed="state.readingGuide"
               @click="action('toggle', 'readingGuide')"
             >
               <ScanEye />
@@ -499,6 +594,7 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.bigText }"
+              :aria-pressed="state.bigText"
               @click="action('toggle', 'bigText')"
             >
               <ALargeSmall />
@@ -511,6 +607,7 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.simplified }"
+              :aria-pressed="state.simplified"
               @click="action('toggle', 'simplified')"
             >
               <Eye />
@@ -520,6 +617,8 @@ onBeforeUnmount(() => {
               class="aging-assist-control"
               type="button"
               :class="{ 'is-active': state.moreOpen }"
+              :aria-expanded="state.moreOpen"
+              :aria-controls="settingsId"
               @click="action('toggleMore')"
             >
               <Zap />
@@ -530,9 +629,9 @@ onBeforeUnmount(() => {
 
         <div class="aging-assist-status">
           <div class="aging-assist-rate">
-            <label for="aging-assist-rate">{{ labels.speechRate }}</label>
+            <label :for="rateId">{{ labels.speechRate }}</label>
             <select
-              id="aging-assist-rate"
+              :id="rateId"
               :value="state.speechRate"
               @change="action('rate', Number(($event.target as HTMLSelectElement).value))"
             >
@@ -565,8 +664,14 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <aside v-if="state.toolbarOpen && state.moreOpen" class="aging-assist-more">
-      <h2>增强设置</h2>
+    <aside
+      v-if="state.toolbarOpen && state.moreOpen"
+      :id="settingsId"
+      class="aging-assist-more"
+      :class="position === 'bottom' ? 'is-bottom' : 'is-top'"
+      :aria-labelledby="settingsTitleId"
+    >
+      <h2 :id="settingsTitleId">{{ labels.enhancementSettings }}</h2>
       <div class="aging-assist-switches">
         <label class="aging-assist-switch">
           <span><Focus :size="20" /> {{ labels.focusEnhance }}</span>
@@ -651,19 +756,28 @@ onBeforeUnmount(() => {
       aria-hidden="true"
     ></div>
 
-    <section v-if="state.confirming" class="aging-assist-confirm" role="dialog" aria-modal="true">
+    <section
+      v-if="state.confirming"
+      ref="confirmDialog"
+      class="aging-assist-confirm"
+      role="dialog"
+      aria-modal="true"
+      :aria-labelledby="confirmTitleId"
+      :aria-describedby="confirmDescriptionId"
+      @keydown="handleConfirmKeydown"
+    >
       <div class="aging-assist-confirm-box">
-        <h2>请确认操作</h2>
-        <p>这个操作可能会提交、删除或改变重要信息。请确认是否继续。</p>
+        <h2 :id="confirmTitleId">{{ labels.confirmTitle }}</h2>
+        <p :id="confirmDescriptionId">{{ labels.confirmDescription }}</p>
         <div class="aging-assist-confirm-actions">
-          <button type="button" @click="action('cancelDanger')">取消</button>
+          <button type="button" @click="action('cancelDanger')">{{ labels.cancel }}</button>
           <button
             class="primary"
             type="button"
             data-aging-confirm-primary
             @click="action('confirmDanger')"
           >
-            继续
+            {{ labels.continue }}
           </button>
         </div>
       </div>

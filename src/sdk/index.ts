@@ -8,14 +8,17 @@ export type {
   AgingAssistInstance,
   AssistEvent,
   AssistLabels,
+  AssistLocale,
   AssistOptions,
   AssistState,
   AssistStateKey,
+  AssistTheme,
+  AssistToggleKey,
   SpeechRate
 } from "./types";
 
 export function createAgingAssist(options: AssistOptions = {}): AgingAssistInstance {
-  return new AgingAssist(options);
+  return AgingAssist.getActiveInstance() ?? new AgingAssist(options);
 }
 
 export const create = createAgingAssist;

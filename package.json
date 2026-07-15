@@ -1,9 +1,9 @@
 {
   "name": "aging-assist",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Vue 3 senior-friendly accessibility plugin for Chinese websites, with script embed, text-to-speech, large captions, high contrast and page zoom.",
   "type": "module",
-  "main": "./dist/aging-assist.iife.js",
+  "main": "./dist/aging-assist.es.js",
   "module": "./dist/aging-assist.es.js",
   "types": "./dist/types/index.d.ts",
   "unpkg": "./dist/aging-assist.iife.js",
@@ -15,10 +15,14 @@
     ".": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/aging-assist.es.js",
-      "default": "./dist/aging-assist.iife.js"
+      "default": "./dist/aging-assist.es.js"
     },
     "./dist/style.css": "./dist/style.css",
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=18"
   },
   "files": [
     "dist",
@@ -51,8 +55,13 @@
   "homepage": "https://github.com/842200588/aging-assist#readme",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "build": "vite build && vue-tsc -p tsconfig.build.json",
+    "build": "vite build --mode es && vite build --mode iife && vue-tsc -p tsconfig.build.json",
     "typecheck": "vue-tsc -p tsconfig.json --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "audit:prod": "npm audit --omit=dev --audit-level=high --registry=https://registry.npmjs.org",
+    "check": "npm run typecheck && npm run test:run && npm run build",
     "preview": "vite --host 127.0.0.1"
   },
   "dependencies": {
@@ -61,8 +70,11 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
+    "@vitest/coverage-v8": "^2.1.9",
+    "jsdom": "^25.0.1",
     "typescript": "^5.4.0",
     "vite": "^5.2.0",
+    "vitest": "^2.1.9",
     "vue-tsc": "^2.0.0"
   },
   "license": "MIT"

@@ -1,4 +1,4 @@
-import type { SpeechRate } from "../types";
+import type { AssistLocale, SpeechRate } from "../types";
 export interface SpeechCallbacks {
     onStart?: () => void;
     onBoundary?: (progress: number) => void;
@@ -8,7 +8,7 @@ export interface SpeechCallbacks {
 export declare class SpeechController {
     private utterance;
     get supported(): boolean;
-    speak(text: string, rate: SpeechRate, callbacks?: SpeechCallbacks): boolean;
+    speak(text: string, rate: SpeechRate, locale: AssistLocale, callbacks?: SpeechCallbacks): boolean;
     pause(): void;
     resume(): void;
     stop(): void;

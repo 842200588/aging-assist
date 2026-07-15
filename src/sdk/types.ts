@@ -4,6 +4,19 @@ export type AssistTheme = "warm" | "official" | "dark";
 
 export type SpeechRate = 0.75 | 1 | 1.25 | 1.5;
 
+export type AssistToggleKey =
+  | "highContrast"
+  | "simplified"
+  | "largeCursor"
+  | "crosshair"
+  | "readingGuide"
+  | "bigText"
+  | "speech"
+  | "focusEnhance"
+  | "clickEnhance"
+  | "formEnhance"
+  | "mistakeGuard";
+
 export interface AssistState {
   enabled: boolean;
   toolbarOpen: boolean;
@@ -34,6 +47,7 @@ export type AssistStateKey = keyof AssistState;
 
 export interface AssistLabels {
   launcher: string;
+  tagline: string;
   openToolbar: string;
   closeToolbar: string;
   enable: string;
@@ -61,6 +75,18 @@ export interface AssistLabels {
   pauseSpeech: string;
   continueSpeech: string;
   more: string;
+  enhancementSettings: string;
+  slowRate: string;
+  standardRate: string;
+  fasterRate: string;
+  fastRate: string;
+  confirmTitle: string;
+  confirmDescription: string;
+  cancel: string;
+  continue: string;
+  bigTextHint: string;
+  speechFailed: string;
+  speechUnsupported: string;
 }
 
 export interface AssistOptions {
@@ -111,7 +137,7 @@ export interface AgingAssistInstance {
   speak: (text: string) => void;
   pauseSpeech: () => void;
   resumeSpeech: () => void;
-  toggle: (key: AssistStateKey) => void;
+  toggle: (key: AssistToggleKey) => void;
   getState: () => AssistState;
   setState: (patch: Partial<AssistState>) => void;
   subscribe: (listener: (state: AssistState) => void) => () => void;
