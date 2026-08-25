@@ -6,6 +6,10 @@ export default defineConfig(({ mode }) => {
   const isIife = mode === "iife";
   return {
     plugins: [vue()],
+    define: {
+      // The browser IIFE bundles Vue, which still reads this compile-time flag.
+      "process.env.NODE_ENV": JSON.stringify("production")
+    },
     build: {
       emptyOutDir: !isIife,
       lib: {

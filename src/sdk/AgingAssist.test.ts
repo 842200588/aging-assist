@@ -53,6 +53,21 @@ describe("AgingAssist", () => {
     expect(assist.getState().pageScale).toBe(1.3);
   });
 
+  it("scales fixed-size page text and restores original inline styles", async () => {
+    const paragraph = document.createElement("p");
+    paragraph.style.fontSize = "20px";
+    paragraph.textContent = "固定字号的页面文字";
+    document.body.appendChild(paragraph);
+    assist = new AgingAssist({ persist: false });
+    assist.open();
+    assist.setState({ fontScale: 1.2 });
+    await flushUi();
+
+    expect(paragraph.style.fontSize).toBe("24px");
+    assist.setState({ fontScale: 1 });
+    expect(paragraph.style.fontSize).toBe("20px");
+  });
+
   it("updates captions from keyboard focus and touch", async () => {
     const paragraph = document.createElement("p");
     paragraph.tabIndex = 0;

@@ -82,6 +82,12 @@ export class AgingAssist implements AgingAssistInstance {
   private originalBodyPaddingTop: string | null = null;
   private toolbarReturnFocus: HTMLElement | null = null;
   private pendingMount = false;
+  private fontScaleElements = new Map<
+    HTMLElement,
+    { value: string; priority: string; baseSize: number }
+  >();
+  private fontScaleObserver: MutationObserver | null = null;
+  private fontScaleFrame = 0;
 
   private readonly onDocumentReady = () => {
     this.pendingMount = false;
@@ -232,6 +238,7 @@ export class AgingAssist implements AgingAssistInstance {
     this.app.mount(this.host);
     this.bindTrigger();
     this.bindDocumentEvents();
+    this.startFontScaleObserver();
     this.applyEffects();
     this.emit("init");
   }
@@ -260,6 +267,7 @@ export class AgingAssist implements AgingAssistInstance {
     this.speech.stop();
     this.stopSpeechProgressClock();
     this.clearHoverTimer();
+    this.stopFontScaleObserver();
     this.clearReadTarget();
     this.setState({
       ...defaultState,
@@ -794,6 +802,77 @@ export class AgingAssist implements AgingAssistInstance {
     if (this.host) {
       this.host.style.zoom = String(1 / this.state.pageScale);
     }
+    this.syncFontScale();
+  }
+
+  private startFontScaleObserver(): void {
+    if (typeof MutationObserver === "undefined" || !document.body) return;
+    this.fontScaleObserver?.disconnect();
+    this.fontScaleObserver = new MutationObserver(() => {
+      if (!this.state.enabled || this.state.fontScale <= 1) return;
+      if (this.fontScaleFrame) return;
+      this.fontScaleFrame = window.requestAnimationFrame(() => {
+        this.fontScaleFrame = 0;
+        this.syncFontScale();
+      });
+    });
+    this.fontScaleObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  private stopFontScaleObserver(): void {
+    this.fontScaleObserver?.disconnect();
+    this.fontScaleObserver = null;
+    if (this.fontScaleFrame) window.cancelAnimationFrame(this.fontScaleFrame);
+    this.fontScaleFrame = 0;
+    this.restoreFontScale();
+  }
+
+  private syncFontScale(): void {
+    if (!this.state.enabled || this.state.fontScale <= 1) {
+      this.restoreFontScale();
+      return;
+    }
+
+    const candidates = Array.from(document.body.querySelectorAll<HTMLElement>("*"));
+    candidates.forEach((element) => {
+      if (!this.shouldScaleFontElement(element) || this.fontScaleElements.has(element)) return;
+      const computedSize = Number.parseFloat(window.getComputedStyle(element).fontSize);
+      if (!Number.isFinite(computedSize) || computedSize <= 0) return;
+      this.fontScaleElements.set(element, {
+        value: element.style.getPropertyValue("font-size"),
+        priority: element.style.getPropertyPriority("font-size"),
+        baseSize: computedSize
+      });
+    });
+
+    this.fontScaleElements.forEach((record, element) => {
+      if (!element.isConnected || !this.shouldScaleFontElement(element)) return;
+      element.style.setProperty(
+        "font-size",
+        `${(record.baseSize * this.state.fontScale).toFixed(2)}px`,
+        "important"
+      );
+    });
+  }
+
+  private restoreFontScale(): void {
+    this.fontScaleElements.forEach((record, element) => {
+      if (record.value) {
+        element.style.setProperty("font-size", record.value, record.priority);
+      } else {
+        element.style.removeProperty("font-size");
+      }
+    });
+    this.fontScaleElements.clear();
+  }
+
+  private shouldScaleFontElement(element: HTMLElement): boolean {
+    if (!element.isConnected || element.closest("[data-aging-assist-root]")) return false;
+    if (element.matches("script, style, noscript, svg, path, img, video, canvas")) return false;
+    if (element.matches("input, textarea, select, option, button")) return true;
+    return Array.from(element.childNodes).some(
+      (node) => node.nodeType === Node.TEXT_NODE && Boolean(node.textContent?.trim())
+    );
   }
 
   private removeRootEffects(): void {

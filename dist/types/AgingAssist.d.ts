@@ -27,6 +27,9 @@ export declare class AgingAssist implements AgingAssistInstance {
     private originalBodyPaddingTop;
     private toolbarReturnFocus;
     private pendingMount;
+    private fontScaleElements;
+    private fontScaleObserver;
+    private fontScaleFrame;
     private readonly onDocumentReady;
     private readonly onTriggerClick;
     private readonly onMouseMove;
@@ -77,6 +80,11 @@ export declare class AgingAssist implements AgingAssistInstance {
     private confirmDanger;
     private requestDangerConfirmation;
     private applyEffects;
+    private startFontScaleObserver;
+    private stopFontScaleObserver;
+    private syncFontScale;
+    private restoreFontScale;
+    private shouldScaleFontElement;
     private removeRootEffects;
     private persist;
     private notify;
