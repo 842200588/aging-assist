@@ -289,8 +289,8 @@
   left: 50%;
   z-index: 2147483004;
   box-sizing: border-box;
-  width: min(1120px, calc(100vw - 32px));
-  height: var(--aging-assist-bigtext-height, clamp(148px, 24vh, 260px));
+  width: min(1180px, calc(100vw - 24px));
+  height: var(--aging-assist-bigtext-height, clamp(168px, 25vh, 286px));
   transform: translateX(-50%);
   border: 3px solid #123c7c;
   border-radius: 8px;
@@ -298,10 +298,12 @@
   color: #111827;
   box-shadow: var(--assist-shadow);
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
   gap: 12px;
-  padding: 18px 20px;
+  padding: 14px 16px;
+  overflow: hidden;
   pointer-events: none;
 }
 
@@ -319,20 +321,25 @@
   position: relative;
   min-width: 0;
   min-height: 0;
-  height: 100%;
+  height: auto;
+  align-self: stretch;
   overflow: hidden;
 }
 
 .aging-assist-bigtext-window p {
+  box-sizing: border-box;
   height: 100%;
+  min-height: 0;
+  max-height: 100%;
   margin: 0;
-  padding: 0 18px 10px 0;
+  padding: 0 12px 10px 0;
   overflow-y: auto;
   overscroll-behavior: contain;
   font-size: clamp(28px, 5vw, 56px);
   font-weight: 900;
   line-height: 1.18;
   overflow-wrap: anywhere;
+  white-space: normal;
   scrollbar-width: thin;
   pointer-events: none;
 }
@@ -343,6 +350,35 @@
   color: #111827;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
   white-space: pre-wrap;
+}
+
+.aging-assist-subtitle-token {
+  display: inline-block;
+  vertical-align: bottom;
+  line-height: 1;
+}
+
+.aging-assist-subtitle-token.is-pinyin {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: bottom;
+}
+
+.aging-assist-subtitle-pinyin {
+  display: block;
+  flex: 0 0 auto;
+  min-height: 1.1em;
+  min-width: max-content;
+  color: #344b70;
+  font-size: clamp(14px, 0.34em, 24px);
+  font-weight: 800;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.aging-assist-subtitle-token.is-pinyin .aging-assist-subtitle-char {
+  line-height: 1.05;
 }
 
 .aging-assist-bigtext-window p::-webkit-scrollbar {
@@ -368,6 +404,37 @@
 .aging-assist-bigtext-actions {
   display: grid;
   gap: 10px;
+  align-content: center;
+}
+
+.aging-assist-subtitle-mode {
+  display: grid;
+  gap: 4px;
+  min-width: 88px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 800;
+  pointer-events: auto;
+}
+
+.aging-assist-subtitle-mode button {
+  min-height: 36px;
+  padding: 4px 6px;
+  border: 2px solid #123c7c;
+  border-radius: 6px;
+  background: #fff;
+  color: #123c7c;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.aging-assist-subtitle-mode button.is-active,
+.aging-assist-subtitle-mode button:hover,
+.aging-assist-subtitle-mode button:focus-visible {
+  background: #123c7c;
+  color: #fff;
+  outline: none;
 }
 
 .aging-assist-bigtext button {
@@ -498,5 +565,25 @@
 
   .aging-assist-status .aging-assist-control {
     flex: 1 1 0;
+  }
+
+  .aging-assist-bigtext {
+    width: calc(100vw - 20px);
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    height: min(42vh, 300px);
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .aging-assist-bigtext-actions {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .aging-assist-subtitle-mode {
+    grid-template-columns: auto repeat(3, minmax(0, 1fr));
+    align-items: center;
+    gap: 4px;
   }
 }

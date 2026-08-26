@@ -1,6 +1,7 @@
 export type AssistLocale = "zh-CN" | "en-US";
 export type AssistTheme = "warm" | "official" | "dark";
 export type SpeechRate = 0.75 | 1 | 1.25 | 1.5;
+export type SubtitleMode = "simplified" | "traditional" | "pinyin";
 export type AssistToggleKey = "highContrast" | "simplified" | "largeCursor" | "crosshair" | "readingGuide" | "bigText" | "speech" | "focusEnhance" | "clickEnhance" | "formEnhance" | "mistakeGuard";
 export interface AssistState {
     enabled: boolean;
@@ -19,6 +20,7 @@ export interface AssistState {
     speechPaused: boolean;
     speechProgress: number;
     speechRate: SpeechRate;
+    subtitleMode: SubtitleMode;
     statusMessage: string;
     focusEnhance: boolean;
     clickEnhance: boolean;
@@ -49,6 +51,10 @@ export interface AssistLabels {
     closeBigText: string;
     speech: string;
     speechRate: string;
+    subtitleMode: string;
+    simplifiedSubtitle: string;
+    traditionalSubtitle: string;
+    pinyinSubtitle: string;
     focusEnhance: string;
     clickEnhance: string;
     formEnhance: string;

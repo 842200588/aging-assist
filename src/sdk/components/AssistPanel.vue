@@ -27,7 +27,8 @@ import {
   X,
   Zap
 } from "lucide-vue-next";
-import type { AssistLabels, AssistState, SpeechRate } from "../types";
+import type { AssistLabels, AssistState, SpeechRate, SubtitleMode } from "../types";
+import { convertSubtitle, convertSubtitlePinyinParts, type PinyinPart } from "../utils/subtitle";
 
 const props = defineProps<{
   state: AssistState;
@@ -81,10 +82,47 @@ const bigTextContent = computed(
 const shouldFollowSpeechScroll = computed(
   () => props.state.bigText && props.state.speech && !props.state.speechPaused
 );
-const subtitleChars = computed(() => Array.from(bigTextContent.value));
+const displayedSubtitle = ref(bigTextContent.value);
+const pinyinParts = ref<PinyinPart[]>([]);
+const isPinyinMode = computed(() => props.state.subtitleMode === "pinyin");
+const subtitleText = computed(() => (isPinyinMode.value ? bigTextContent.value : displayedSubtitle.value));
+const subtitleChars = computed(() => Array.from(subtitleText.value));
+const subtitlePinyin = computed(() => {
+  if (!isPinyinMode.value) return [];
+  return pinyinParts.value.flatMap((part) => {
+    const chars = Array.from(part.origin);
+    return chars.map((char) => (chars.length === 1 ? part.pinyin : ""));
+  });
+});
+const subtitleModes = computed<Array<{ label: string; value: SubtitleMode }>>(() => [
+  { label: props.labels.simplifiedSubtitle, value: "simplified" },
+  { label: props.labels.traditionalSubtitle, value: "traditional" },
+  { label: props.labels.pinyinSubtitle, value: "pinyin" }
+]);
 
 function action(name: string, value?: unknown) {
   emit("action", name, value);
+}
+
+let subtitleRequest = 0;
+async function updateDisplayedSubtitle(force = false) {
+  const request = ++subtitleRequest;
+  if (props.state.subtitleMode === "simplified" && !force) {
+    displayedSubtitle.value = bigTextContent.value;
+    pinyinParts.value = [];
+    return;
+  }
+  if (props.state.subtitleMode === "pinyin") {
+    const parts = await convertSubtitlePinyinParts(bigTextContent.value);
+    if (request !== subtitleRequest) return;
+    pinyinParts.value = parts;
+    displayedSubtitle.value = bigTextContent.value;
+    return;
+  }
+  const text = await convertSubtitle(bigTextContent.value, props.state.subtitleMode);
+  if (request !== subtitleRequest) return;
+  pinyinParts.value = [];
+  displayedSubtitle.value = text;
 }
 
 function setBoolean(key: string, event: Event) {
@@ -126,15 +164,18 @@ function measureTextLines(element: HTMLElement) {
     return { charsLength: chars.length, lines };
   }
 
-  const firstTop = chars[0]?.offsetTop ?? 0;
+  const getLineTop = (char: HTMLElement) =>
+    char.closest<HTMLElement>(".aging-assist-subtitle-token")?.offsetTop ?? char.offsetTop;
+  const firstTop = getLineTop(chars[0]);
   let lineStart = 0;
   let lineTop = firstTop;
 
   chars.forEach((char, index) => {
-    if (char.offsetTop <= lineTop + 2) return;
+    const charTop = getLineTop(char);
+    if (charTop <= lineTop + 2) return;
     lines.push({ start: lineStart, end: index, top: lineTop });
     lineStart = index;
-    lineTop = char.offsetTop;
+    lineTop = charTop;
   });
   lines.push({ start: lineStart, end: chars.length, top: lineTop });
 
@@ -320,7 +361,14 @@ function resetBigTextScroll() {
   });
 }
 
-watch(bigTextContent, resetBigTextScroll);
+watch(bigTextContent, async () => {
+  await updateDisplayedSubtitle();
+  resetBigTextScroll();
+});
+watch(() => props.state.subtitleMode, async (mode, previousMode) => {
+  await updateDisplayedSubtitle(mode === "simplified" && previousMode !== "simplified");
+  resetBigTextScroll();
+});
 watch(
   () => props.state.bigText,
   (active) => {
@@ -724,9 +772,13 @@ onBeforeUnmount(() => {
           <span
             v-for="(char, index) in subtitleChars"
             :key="`${index}-${char}`"
-            class="aging-assist-subtitle-char"
+            class="aging-assist-subtitle-token"
+            :class="{ 'is-pinyin': isPinyinMode }"
           >
-            {{ char }}
+            <span v-if="isPinyinMode" class="aging-assist-subtitle-pinyin">
+              {{ subtitlePinyin[index] || "\u00a0" }}
+            </span>
+            <span class="aging-assist-subtitle-char">{{ char }}</span>
           </span>
         </p>
         <span
@@ -736,6 +788,19 @@ onBeforeUnmount(() => {
         ></span>
       </div>
       <div class="aging-assist-bigtext-actions">
+        <div class="aging-assist-subtitle-mode" role="group" :aria-label="labels.subtitleMode">
+          <span>{{ labels.subtitleMode }}</span>
+          <button
+            v-for="mode in subtitleModes"
+            :key="mode.value"
+            type="button"
+            :class="{ 'is-active': state.subtitleMode === mode.value }"
+            :aria-pressed="state.subtitleMode === mode.value"
+            @click="action('subtitleMode', mode.value)"
+          >
+            {{ mode.label }}
+          </button>
+        </div>
         <button
           type="button"
           :aria-label="labels.closeBigText"

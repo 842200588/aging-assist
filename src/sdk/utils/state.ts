@@ -1,4 +1,4 @@
-import type { AssistState, SpeechRate } from "../types";
+import type { AssistState, SpeechRate, SubtitleMode } from "../types";
 
 const booleanKeys = [
   "enabled",
@@ -20,6 +20,7 @@ const booleanKeys = [
 ] as const satisfies ReadonlyArray<keyof AssistState>;
 
 const speechRates = new Set<SpeechRate>([0.75, 1, 1.25, 1.5]);
+const subtitleModes = new Set<SubtitleMode>(["simplified", "traditional", "pinyin"]);
 
 export function normalizeStatePatch(input: unknown): Partial<AssistState> {
   if (!input || typeof input !== "object" || Array.isArray(input)) return {};
@@ -43,6 +44,9 @@ export function normalizeStatePatch(input: unknown): Partial<AssistState> {
   }
   if (speechRates.has(source.speechRate as SpeechRate)) {
     patch.speechRate = source.speechRate as SpeechRate;
+  }
+  if (subtitleModes.has(source.subtitleMode as SubtitleMode)) {
+    patch.subtitleMode = source.subtitleMode as SubtitleMode;
   }
   if (typeof source.statusMessage === "string") {
     patch.statusMessage = source.statusMessage.slice(0, 240);

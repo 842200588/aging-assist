@@ -11,7 +11,7 @@
 - 一键开启、收起、重置、退出服务
 - 文字放大 / 缩小，页面整体缩放
 - 高对比、简洁模式、大鼠标、十字线
-- 鼠标、触屏和键盘焦点指读，大字幕、语音朗读、语速切换
+- 鼠标、触屏和键盘焦点指读，大字幕、简繁体 / 拼音显示、语音朗读、语速切换
 - 上一段 / 下一段阅读队列
 - 焦点增强、点击目标增强、表单辅助
 - 危险操作防误触二次确认
@@ -40,6 +40,8 @@ const assist = window.AgingAssist.init({
 </script>
 ```
 
+Script 接入需要同时部署 `dist/aging-assist.iife.js`、`dist/aging-assist-subtitle.iife.js` 和 `dist/style.css` 到同一目录。简体字幕默认不加载转换资源；用户切换繁体或拼音时，插件会按需加载 `aging-assist-subtitle.iife.js`。
+
 内置悬浮入口默认开启。如果页面已经有自己的按钮，可以继续保留 `showLauncher: true`；如果只想用业务自己的入口，设为 `showLauncher: false`。
 
 ## NPM / ESM 接入
@@ -65,6 +67,8 @@ const assist = createAgingAssist({
 ```
 
 同一页面只维护一个活动实例。重复调用 `createAgingAssist()` / `init()` 会返回现有实例；如需重新配置，请先调用 `assist.destroy()`。
+
+大字幕开启后可在字幕窗口选择简体、繁体或拼音。显示模式会记住，语音朗读始终使用页面原文，不会朗读转换后的拼音。
 
 ## API
 

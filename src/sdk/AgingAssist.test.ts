@@ -98,6 +98,16 @@ describe("AgingAssist", () => {
     expect(window.AgingAssist?.version).toBe("0.1.1");
   });
 
+  it("persists the subtitle display mode", () => {
+    assist = new AgingAssist({ persist: true, storageKey: "subtitle-mode-test" });
+    assist.setState({ subtitleMode: "pinyin" });
+    assist.destroy();
+
+    const next = new AgingAssist({ persist: true, storageKey: "subtitle-mode-test" });
+    assist = next;
+    expect(next.getState().subtitleMode).toBe("pinyin");
+  });
+
   it("updates captions from keyboard focus and touch", async () => {
     const paragraph = document.createElement("p");
     paragraph.tabIndex = 0;

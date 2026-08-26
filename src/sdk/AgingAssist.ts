@@ -431,6 +431,9 @@ export class AgingAssist implements AgingAssistInstance {
         this.setState({ speechRate: value as SpeechRate });
         if (this.state.currentText && this.state.speech) this.speak(this.state.currentText);
         break;
+      case "subtitleMode":
+        this.setState({ subtitleMode: value as AssistState["subtitleMode"] });
+        break;
       case "toolbarResize":
         if (typeof value === "number" && Number.isFinite(value)) {
           this.toolbarHeight = Math.max(0, value);
@@ -940,6 +943,7 @@ export class AgingAssist implements AgingAssistInstance {
       readingGuide: this.state.readingGuide,
       bigText: this.state.bigText,
       speechRate: this.state.speechRate,
+      subtitleMode: this.state.subtitleMode,
       focusEnhance: this.state.focusEnhance,
       clickEnhance: this.state.clickEnhance,
       formEnhance: this.state.formEnhance,

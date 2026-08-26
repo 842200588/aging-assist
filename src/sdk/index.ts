@@ -14,7 +14,8 @@ export type {
   AssistStateKey,
   AssistTheme,
   AssistToggleKey,
-  SpeechRate
+  SpeechRate,
+  SubtitleMode
 } from "./types";
 
 export function createAgingAssist(options: AssistOptions = {}): AgingAssistInstance {
