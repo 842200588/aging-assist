@@ -473,6 +473,8 @@ onBeforeUnmount(() => {
       ref="toolbar"
       class="aging-assist-toolbar"
       :class="position === 'bottom' ? 'is-bottom' : 'is-top'"
+      role="toolbar"
+      aria-orientation="horizontal"
       :aria-label="labels.launcher"
     >
       <div class="aging-assist-shell">

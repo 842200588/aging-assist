@@ -1,7 +1,7 @@
 import { AgingAssist } from "./AgingAssist";
 import type { AgingAssistInstance, AssistOptions } from "./types";
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.1";
 
 export { AgingAssist };
 export type {

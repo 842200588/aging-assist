@@ -68,6 +68,36 @@ describe("AgingAssist", () => {
     expect(paragraph.style.fontSize).toBe("20px");
   });
 
+  it("does not add an inline scale to inherited text and scales added content", async () => {
+    const parent = document.createElement("div");
+    parent.style.fontSize = "20px";
+    parent.appendChild(document.createTextNode("父级文字 "));
+    const inherited = document.createElement("span");
+    inherited.textContent = "继承字号的文字";
+    parent.appendChild(inherited);
+    document.body.appendChild(parent);
+
+    assist = new AgingAssist({ persist: false });
+    assist.open();
+    assist.setState({ fontScale: 1.2 });
+    await flushUi();
+
+    expect(parent.style.fontSize).toBe("24px");
+    expect(inherited.style.fontSize).toBe("");
+
+    const added = document.createElement("p");
+    added.style.fontSize = "18px";
+    added.textContent = "动态追加的固定字号文字";
+    document.body.appendChild(added);
+    await flushUi();
+
+    expect(added.style.fontSize).toBe("21.6px");
+  });
+
+  it("keeps the runtime version aligned with the package release", () => {
+    expect(window.AgingAssist?.version).toBe("0.1.1");
+  });
+
   it("updates captions from keyboard focus and touch", async () => {
     const paragraph = document.createElement("p");
     paragraph.tabIndex = 0;

@@ -1,6 +1,6 @@
 import { AgingAssist } from "./AgingAssist";
 import type { AgingAssistInstance, AssistOptions } from "./types";
-export declare const VERSION = "0.1.0";
+export declare const VERSION = "0.1.1";
 export { AgingAssist };
 export type { AgingAssistInstance, AssistEvent, AssistLabels, AssistLocale, AssistOptions, AssistState, AssistStateKey, AssistTheme, AssistToggleKey, SpeechRate } from "./types";
 export declare function createAgingAssist(options?: AssistOptions): AgingAssistInstance;

@@ -88,6 +88,7 @@ export class AgingAssist implements AgingAssistInstance {
   >();
   private fontScaleObserver: MutationObserver | null = null;
   private fontScaleFrame = 0;
+  private fontScalePendingRoots = new Set<HTMLElement>();
 
   private readonly onDocumentReady = () => {
     this.pendingMount = false;
@@ -808,12 +809,22 @@ export class AgingAssist implements AgingAssistInstance {
   private startFontScaleObserver(): void {
     if (typeof MutationObserver === "undefined" || !document.body) return;
     this.fontScaleObserver?.disconnect();
-    this.fontScaleObserver = new MutationObserver(() => {
-      if (!this.state.enabled || this.state.fontScale <= 1) return;
-      if (this.fontScaleFrame) return;
+    this.fontScaleObserver = new MutationObserver((records) => {
+      if (!this.state.enabled || this.state.fontScale <= 1) {
+        this.fontScalePendingRoots.clear();
+        return;
+      }
+      records.forEach((record) => {
+        record.addedNodes.forEach((node) => {
+          if (node instanceof HTMLElement) this.fontScalePendingRoots.add(node);
+        });
+      });
+      if (this.fontScaleFrame || !this.fontScalePendingRoots.size) return;
       this.fontScaleFrame = window.requestAnimationFrame(() => {
         this.fontScaleFrame = 0;
-        this.syncFontScale();
+        const pendingRoots = Array.from(this.fontScalePendingRoots);
+        this.fontScalePendingRoots.clear();
+        this.syncFontScale(pendingRoots);
       });
     });
     this.fontScaleObserver.observe(document.body, { childList: true, subtree: true });
@@ -824,19 +835,27 @@ export class AgingAssist implements AgingAssistInstance {
     this.fontScaleObserver = null;
     if (this.fontScaleFrame) window.cancelAnimationFrame(this.fontScaleFrame);
     this.fontScaleFrame = 0;
+    this.fontScalePendingRoots.clear();
     this.restoreFontScale();
   }
 
-  private syncFontScale(): void {
+  private syncFontScale(roots?: HTMLElement[]): void {
     if (!this.state.enabled || this.state.fontScale <= 1) {
       this.restoreFontScale();
       return;
     }
 
-    const candidates = Array.from(document.body.querySelectorAll<HTMLElement>("*"));
+    const candidates = roots
+      ? roots.flatMap((root) => [root, ...Array.from(root.querySelectorAll<HTMLElement>("*"))])
+      : Array.from(document.body.querySelectorAll<HTMLElement>("*"));
     candidates.forEach((element) => {
       if (!this.shouldScaleFontElement(element) || this.fontScaleElements.has(element)) return;
       const computedSize = Number.parseFloat(window.getComputedStyle(element).fontSize);
+      const parent = element.parentElement;
+      const parentSize = parent
+        ? Number.parseFloat(window.getComputedStyle(parent).fontSize)
+        : Number.NaN;
+      if (Number.isFinite(parentSize) && Math.abs(computedSize - parentSize) < 0.01) return;
       if (!Number.isFinite(computedSize) || computedSize <= 0) return;
       this.fontScaleElements.set(element, {
         value: element.style.getPropertyValue("font-size"),
@@ -846,7 +865,10 @@ export class AgingAssist implements AgingAssistInstance {
     });
 
     this.fontScaleElements.forEach((record, element) => {
-      if (!element.isConnected || !this.shouldScaleFontElement(element)) return;
+      if (!element.isConnected) {
+        this.fontScaleElements.delete(element);
+        return;
+      }
       element.style.setProperty(
         "font-size",
         `${(record.baseSize * this.state.fontScale).toFixed(2)}px`,

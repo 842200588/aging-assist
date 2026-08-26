@@ -30,6 +30,7 @@ export declare class AgingAssist implements AgingAssistInstance {
     private fontScaleElements;
     private fontScaleObserver;
     private fontScaleFrame;
+    private fontScalePendingRoots;
     private readonly onDocumentReady;
     private readonly onTriggerClick;
     private readonly onMouseMove;

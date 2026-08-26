@@ -85,6 +85,7 @@
   bottom: 0;
   border-top: 1px solid var(--assist-line);
   border-bottom: 0;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .aging-assist-toolbar.is-top {
@@ -309,7 +310,9 @@
 }
 
 .aging-assist-bigtext.is-bottom.has-toolbar-bottom {
-  bottom: calc(126px + env(safe-area-inset-bottom));
+  bottom: calc(
+    var(--aging-assist-toolbar-reserve) + 26px + env(safe-area-inset-bottom)
+  );
 }
 
 .aging-assist-bigtext-window {
@@ -470,9 +473,30 @@
     grid-column: 1 / -1;
     justify-content: flex-start;
     min-width: 0;
+    flex-wrap: wrap;
   }
 
   .aging-assist-control {
     min-width: 68px;
+  }
+}
+
+@media (max-width: 420px) {
+  .aging-assist-shell {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .aging-assist-status {
+    gap: 6px;
+  }
+
+  .aging-assist-rate {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .aging-assist-status .aging-assist-control {
+    flex: 1 1 0;
   }
 }

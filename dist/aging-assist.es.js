@@ -1,12 +1,12 @@
-var Ne = Object.defineProperty;
-var Ue = (s, e, t) => e in s ? Ne(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
+var qe = Object.defineProperty;
+var Ue = (s, e, t) => e in s ? qe(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
 var u = (s, e, t) => Ue(s, typeof e != "symbol" ? e + "" : e, t);
-import { defineComponent as Ke, computed as C, ref as S, watch as D, nextTick as E, onMounted as Ze, onBeforeUnmount as je, openBlock as v, createElementBlock as T, createVNode as d, unref as p, createElementVNode as a, toDisplayString as h, createCommentVNode as A, normalizeClass as y, Fragment as we, renderList as Ee, createTextVNode as Q, normalizeStyle as Ve, reactive as Xe, createApp as Je } from "vue";
+import { defineComponent as Ke, computed as C, ref as v, watch as R, nextTick as E, onMounted as Ze, onBeforeUnmount as je, openBlock as y, createElementBlock as T, createVNode as d, unref as p, createElementVNode as a, toDisplayString as h, createCommentVNode as A, normalizeClass as P, Fragment as we, renderList as Ee, createTextVNode as Q, normalizeStyle as Ve, reactive as Xe, createApp as Je } from "vue";
 import { BadgeCheck as We, Sparkles as Ye, ListRestart as Qe, Volume2 as _e, Pause as et, Play as tt, AudioLines as st, Rows3 as it, Baseline as nt, Type as at, Minimize2 as ot, Maximize2 as rt, Contrast as lt, MousePointer2 as ct, Crosshair as ut, ScanEye as ht, ALargeSmall as gt, Eye as dt, Zap as pt, CircleOff as ft, X as ke, Focus as mt, MousePointerClick as bt, Hand as St, ShieldAlert as vt } from "lucide-vue-next";
-const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { class: "aging-assist-shell" }, wt = { class: "aging-assist-brand" }, Et = {
+const yt = ["data-theme"], Tt = ["aria-label"], Pt = ["aria-label"], xt = { class: "aging-assist-shell" }, wt = { class: "aging-assist-brand" }, Et = {
   class: "aging-assist-mark",
   "aria-hidden": "true"
-}, kt = { class: "aging-assist-title" }, Ct = { class: "aging-assist-groups" }, Mt = { class: "aging-assist-group" }, Dt = ["aria-pressed"], At = { class: "aging-assist-group" }, Ft = { class: "aging-assist-group" }, Rt = ["aria-pressed"], Lt = ["aria-pressed"], Ot = ["aria-pressed"], Bt = ["aria-pressed"], Ht = ["aria-pressed"], It = { class: "aging-assist-group" }, $t = ["aria-pressed"], zt = ["aria-expanded", "aria-controls"], Gt = { class: "aging-assist-status" }, qt = { class: "aging-assist-rate" }, Nt = ["for"], Ut = ["id", "value"], Kt = ["value"], Zt = {
+}, kt = { class: "aging-assist-title" }, Ct = { class: "aging-assist-groups" }, Mt = { class: "aging-assist-group" }, Rt = ["aria-pressed"], At = { class: "aging-assist-group" }, Dt = { class: "aging-assist-group" }, Ft = ["aria-pressed"], Lt = ["aria-pressed"], Ot = ["aria-pressed"], Bt = ["aria-pressed"], Ht = ["aria-pressed"], zt = { class: "aging-assist-group" }, It = ["aria-pressed"], $t = ["aria-expanded", "aria-controls"], Nt = { class: "aging-assist-status" }, Gt = { class: "aging-assist-rate" }, qt = ["for"], Ut = ["id", "value"], Kt = ["value"], Zt = {
   key: 0,
   class: "aging-assist-message",
   role: "status"
@@ -27,11 +27,11 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
       { label: t.labels.standardRate, value: 1 },
       { label: t.labels.fasterRate, value: 1.25 },
       { label: t.labels.fastRate, value: 1.5 }
-    ]), c = S(null), x = S(null), f = S(null), P = S(null), K = C(() => `${t.idPrefix}-confirm-title`), z = C(() => `${t.idPrefix}-confirm-description`), he = C(() => `${t.idPrefix}-settings-title`), ge = C(() => `${t.idPrefix}-settings`), de = C(() => `${t.idPrefix}-rate`), te = S(0), se = S(0), M = S(0), Z = S(0), G = S(0), F = S(0), q = S(""), B = S(0), R = S(0), j = C(
+    ]), c = v(null), b = v(null), f = v(null), x = v(null), K = C(() => `${t.idPrefix}-confirm-title`), $ = C(() => `${t.idPrefix}-confirm-description`), he = C(() => `${t.idPrefix}-settings-title`), ge = C(() => `${t.idPrefix}-settings`), de = C(() => `${t.idPrefix}-rate`), te = v(0), se = v(0), M = v(0), Z = v(0), N = v(0), D = v(0), G = v(""), B = v(0), F = v(0), j = C(
       () => t.state.currentText || t.labels.bigTextHint
     ), ie = C(
       () => t.state.bigText && t.state.speech && !t.state.speechPaused
-    ), De = C(() => Array.from(j.value));
+    ), Re = C(() => Array.from(j.value));
     function g(o, i) {
       n("action", o, i);
     }
@@ -44,8 +44,8 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
     function X() {
       M.value && (window.cancelAnimationFrame(M.value), M.value = 0);
     }
-    function N() {
-      G.value && window.clearTimeout(G.value), G.value = 0, q.value = "", B.value = 0, R.value = 0;
+    function q() {
+      N.value && window.clearTimeout(N.value), N.value = 0, G.value = "", B.value = 0, F.value = 0;
     }
     function J(o) {
       return Math.min(1, Math.max(0, o));
@@ -55,17 +55,17 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
       te.value = i > 0 ? Math.min(100, o.scrollTop / i * 100) : 0;
     }
     function Ae(o) {
-      var I;
+      var z;
       const i = Array.from(o.querySelectorAll(".aging-assist-subtitle-char")), r = [];
       if (i.length <= 1)
         return { charsLength: i.length, lines: r };
-      const m = ((I = i[0]) == null ? void 0 : I.offsetTop) ?? 0;
+      const m = ((z = i[0]) == null ? void 0 : z.offsetTop) ?? 0;
       let w = 0, L = m;
       return i.forEach((O, Y) => {
         O.offsetTop <= L + 2 || (r.push({ start: w, end: Y, top: L }), w = Y, L = O.offsetTop);
       }), r.push({ start: w, end: i.length, top: L }), { charsLength: i.length, lines: r };
     }
-    function Fe(o) {
+    function De(o) {
       const i = J(o);
       return i * i * (3 - 2 * i);
     }
@@ -73,19 +73,19 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
       var o;
       return ((o = window.matchMedia) == null ? void 0 : o.call(window, "(prefers-reduced-motion: reduce)").matches) ?? !1;
     }
-    function Re() {
+    function Fe() {
       return t.state.speech ? t.state.speechProgress : Z.value;
     }
     function Le(o, i) {
       if (!t.state.bigText) return 0;
       const { charsLength: r, lines: m } = Ae(o);
       if (r <= 1 || m.length <= 1) return 0;
-      const w = J(Re());
+      const w = J(Fe());
       if (w >= 1) return i;
-      const L = w * r, I = m.findIndex((qe) => L < qe.end);
-      if (I <= 0) return 0;
-      const O = m[I], Y = m[I - 1], Pe = m[0].top, $e = Math.max(1, O.end - O.start), ze = Fe((L - O.start) / $e), xe = Math.max(0, Y.top - Pe), Ge = Math.max(0, O.top - Pe);
-      return Math.min(i, xe + (Ge - xe) * ze);
+      const L = w * r, z = m.findIndex((Ge) => L < Ge.end);
+      if (z <= 0) return 0;
+      const O = m[z], Y = m[z - 1], Pe = m[0].top, Ie = Math.max(1, O.end - O.start), $e = De((L - O.start) / Ie), xe = Math.max(0, Y.top - Pe), Ne = Math.max(0, O.top - Pe);
+      return Math.min(i, xe + (Ne - xe) * $e);
     }
     function pe() {
       const o = c.value;
@@ -125,33 +125,33 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
       return `${j.value}|${o.scrollHeight}|${o.clientHeight}`;
     }
     function be(o, i = !1) {
-      q.value = me(o), R.value = Oe(j.value);
+      G.value = me(o), F.value = Oe(j.value);
       const r = o.scrollHeight - o.clientHeight;
-      Z.value = i && r > 0 ? J(o.scrollTop / r) : 0, B.value = window.performance.now() - Z.value * R.value;
+      Z.value = i && r > 0 ? J(o.scrollTop / r) : 0, B.value = window.performance.now() - Z.value * F.value;
     }
     function Se() {
       const o = c.value;
       if (!o || !t.state.bigText || t.state.speech || ne()) {
-        q.value = "", B.value = 0, R.value = 0;
+        G.value = "", B.value = 0, F.value = 0;
         return;
       }
       if (o.scrollHeight <= o.clientHeight) {
-        q.value = "", B.value = 0, R.value = 0, U(o);
+        G.value = "", B.value = 0, F.value = 0, U(o);
         return;
       }
-      (me(o) !== q.value || !R.value) && be(o);
+      (me(o) !== G.value || !F.value) && be(o);
       const r = B.value || window.performance.now();
       B.value = r, Z.value = J(
-        (window.performance.now() - r) / R.value
+        (window.performance.now() - r) / F.value
       ), H(!0);
     }
     function W(o = !1, i = 0) {
-      i === 0 && N(), !(!t.state.bigText || t.state.speech || ne()) && E(() => {
+      i === 0 && q(), !(!t.state.bigText || t.state.speech || ne()) && E(() => {
         const r = c.value;
         if (r) {
           if (r.scrollHeight <= r.clientHeight) {
-            i < gs && (G.value = window.setTimeout(() => {
-              G.value = 0, W(o, i + 1);
+            i < gs && (N.value = window.setTimeout(() => {
+              N.value = 0, W(o, i + 1);
             }, 120));
             return;
           }
@@ -160,14 +160,14 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
       });
     }
     function Be() {
-      if (F.value) return;
+      if (D.value) return;
       const o = () => {
-        F.value = 0, Se(), F.value = window.setTimeout(o, 64);
+        D.value = 0, Se(), D.value = window.setTimeout(o, 64);
       };
-      F.value = window.setTimeout(o, 64);
+      D.value = window.setTimeout(o, 64);
     }
     function He() {
-      F.value && (window.clearTimeout(F.value), F.value = 0);
+      D.value && (window.clearTimeout(D.value), D.value = 0);
     }
     function ve() {
       E(() => {
@@ -175,24 +175,24 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
         o && (fe(o, 0, !0), ie.value && H(), W());
       });
     }
-    D(j, ve), D(
+    R(j, ve), R(
       () => t.state.bigText,
       (o) => {
-        o ? ve() : (X(), N());
+        o ? ve() : (X(), q());
       }
-    ), D(ie, (o) => {
-      o ? (N(), E(H)) : (X(), t.state.speech || W(!0));
-    }), D(
+    ), R(ie, (o) => {
+      o ? (q(), E(H)) : (X(), t.state.speech || W(!0));
+    }), R(
       () => t.state.speech,
       (o) => {
-        o ? (N(), E(H)) : W(!0);
+        o ? (q(), E(H)) : W(!0);
       }
-    ), D(
+    ), R(
       () => t.state.speechRate,
       () => {
         ie.value && E(H);
       }
-    ), D(
+    ), R(
       () => t.state.speechProgress,
       () => {
         !t.state.bigText || !t.state.speech || E(() => {
@@ -200,18 +200,18 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
         });
       }
     );
-    let b = null;
-    function Te() {
+    let S = null;
+    function ye() {
       var o;
-      g("toolbarResize", ((o = x.value) == null ? void 0 : o.getBoundingClientRect().height) ?? 0);
+      g("toolbarResize", ((o = b.value) == null ? void 0 : o.getBoundingClientRect().height) ?? 0);
     }
     function ae() {
-      b == null || b.disconnect(), b = null, Te(), !(!x.value || typeof ResizeObserver > "u") && (b = new ResizeObserver(Te), b.observe(x.value));
+      S == null || S.disconnect(), S = null, ye(), !(!b.value || typeof ResizeObserver > "u") && (S = new ResizeObserver(ye), S.observe(b.value));
     }
-    function ye() {
+    function Te() {
       E(ae);
     }
-    function Ie(o) {
+    function ze(o) {
       if (o.key === "Escape") {
         o.preventDefault(), g("cancelDanger");
         return;
@@ -224,32 +224,32 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
       ).filter((w) => !w.hidden), r = i[0], m = i[i.length - 1];
       !r || !m || (o.shiftKey && document.activeElement === r ? (o.preventDefault(), m.focus()) : !o.shiftKey && document.activeElement === m && (o.preventDefault(), r.focus()));
     }
-    return D(
+    return R(
       () => t.state.toolbarOpen,
       async (o) => {
-        await E(), o ? ae() : (b == null || b.disconnect(), b = null, g("toolbarResize", 0));
+        await E(), o ? ae() : (S == null || S.disconnect(), S = null, g("toolbarResize", 0));
       }
-    ), D(
+    ), R(
       () => t.state.confirming,
       async (o) => {
         var i, r, m;
         if (o) {
           const w = document.activeElement;
-          P.value = w instanceof HTMLElement ? w : null, await E(), (r = (i = f.value) == null ? void 0 : i.querySelector("[data-aging-confirm-primary]")) == null || r.focus();
+          x.value = w instanceof HTMLElement ? w : null, await E(), (r = (i = f.value) == null ? void 0 : i.querySelector("[data-aging-confirm-primary]")) == null || r.focus();
           return;
         }
-        await E(), (m = P.value) != null && m.isConnected && P.value.focus(), P.value = null;
+        await E(), (m = x.value) != null && m.isConnected && x.value.focus(), x.value = null;
       }
     ), Ze(() => {
-      Be(), window.addEventListener("resize", ye), t.state.toolbarOpen && E(ae);
+      Be(), window.addEventListener("resize", Te), t.state.toolbarOpen && E(ae);
     }), je(() => {
-      window.removeEventListener("resize", ye), b == null || b.disconnect(), g("toolbarResize", 0), He(), X(), N();
-    }), (o, i) => (v(), T("div", {
+      window.removeEventListener("resize", Te), S == null || S.disconnect(), g("toolbarResize", 0), He(), X(), q();
+    }), (o, i) => (y(), T("div", {
       class: "aging-assist-root",
       "data-aging-assist-root": "",
       "data-theme": s.theme
     }, [
-      s.showLauncher && !s.state.toolbarOpen ? (v(), T("button", {
+      s.showLauncher && !s.state.toolbarOpen ? (y(), T("button", {
         key: 0,
         class: "aging-assist-launcher",
         type: "button",
@@ -258,12 +258,14 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
       }, [
         d(p(We), { size: 24 }),
         a("span", null, h(s.labels.launcher), 1)
-      ], 8, yt)) : A("", !0),
-      s.state.toolbarOpen ? (v(), T("section", {
+      ], 8, Tt)) : A("", !0),
+      s.state.toolbarOpen ? (y(), T("section", {
         key: 1,
         ref_key: "toolbar",
-        ref: x,
-        class: y(["aging-assist-toolbar", s.position === "bottom" ? "is-bottom" : "is-top"]),
+        ref: b,
+        class: P(["aging-assist-toolbar", s.position === "bottom" ? "is-bottom" : "is-top"]),
+        role: "toolbar",
+        "aria-orientation": "horizontal",
         "aria-label": s.labels.launcher
       }, [
         a("div", xt, [
@@ -287,15 +289,15 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
                 a("span", null, h(s.labels.reset), 1)
               ]),
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.speech }]),
+                class: P(["aging-assist-control", { "is-active": s.state.speech }]),
                 type: "button",
                 "aria-pressed": s.state.speech,
                 onClick: i[2] || (i[2] = (r) => g("toggle", "speech"))
               }, [
                 d(p(_e)),
                 a("span", null, h(s.labels.speech), 1)
-              ], 10, Dt),
-              s.state.speech && !s.state.speechPaused ? (v(), T("button", {
+              ], 10, Rt),
+              s.state.speech && !s.state.speechPaused ? (y(), T("button", {
                 key: 0,
                 class: "aging-assist-control",
                 type: "button",
@@ -304,7 +306,7 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
                 d(p(et)),
                 a("span", null, h(s.labels.pauseSpeech), 1)
               ])) : A("", !0),
-              s.state.speech && s.state.speechPaused ? (v(), T("button", {
+              s.state.speech && s.state.speechPaused ? (y(), T("button", {
                 key: 1,
                 class: "aging-assist-control",
                 type: "button",
@@ -364,18 +366,18 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
                 a("span", null, h(s.labels.pageZoomIn), 1)
               ])
             ]),
-            a("div", Ft, [
+            a("div", Dt, [
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.highContrast }]),
+                class: P(["aging-assist-control", { "is-active": s.state.highContrast }]),
                 type: "button",
                 "aria-pressed": s.state.highContrast,
                 onClick: i[11] || (i[11] = (r) => g("toggle", "highContrast"))
               }, [
                 d(p(lt)),
                 a("span", null, h(s.labels.highContrast), 1)
-              ], 10, Rt),
+              ], 10, Ft),
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.largeCursor }]),
+                class: P(["aging-assist-control", { "is-active": s.state.largeCursor }]),
                 type: "button",
                 "aria-pressed": s.state.largeCursor,
                 onClick: i[12] || (i[12] = (r) => g("toggle", "largeCursor"))
@@ -384,7 +386,7 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
                 a("span", null, h(s.labels.largeCursor), 1)
               ], 10, Lt),
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.crosshair }]),
+                class: P(["aging-assist-control", { "is-active": s.state.crosshair }]),
                 type: "button",
                 "aria-pressed": s.state.crosshair,
                 onClick: i[13] || (i[13] = (r) => g("toggle", "crosshair"))
@@ -393,7 +395,7 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
                 a("span", null, h(s.labels.crosshair), 1)
               ], 10, Ot),
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.readingGuide }]),
+                class: P(["aging-assist-control", { "is-active": s.state.readingGuide }]),
                 type: "button",
                 "aria-pressed": s.state.readingGuide,
                 onClick: i[14] || (i[14] = (r) => g("toggle", "readingGuide"))
@@ -402,7 +404,7 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
                 a("span", null, h(s.labels.readingGuide), 1)
               ], 10, Bt),
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.bigText }]),
+                class: P(["aging-assist-control", { "is-active": s.state.bigText }]),
                 type: "button",
                 "aria-pressed": s.state.bigText,
                 onClick: i[15] || (i[15] = (r) => g("toggle", "bigText"))
@@ -411,18 +413,18 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
                 a("span", null, h(s.labels.bigText), 1)
               ], 10, Ht)
             ]),
-            a("div", It, [
+            a("div", zt, [
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.simplified }]),
+                class: P(["aging-assist-control", { "is-active": s.state.simplified }]),
                 type: "button",
                 "aria-pressed": s.state.simplified,
                 onClick: i[16] || (i[16] = (r) => g("toggle", "simplified"))
               }, [
                 d(p(dt)),
                 a("span", null, h(s.labels.simplified), 1)
-              ], 10, $t),
+              ], 10, It),
               a("button", {
-                class: y(["aging-assist-control", { "is-active": s.state.moreOpen }]),
+                class: P(["aging-assist-control", { "is-active": s.state.moreOpen }]),
                 type: "button",
                 "aria-expanded": s.state.moreOpen,
                 "aria-controls": ge.value,
@@ -430,24 +432,24 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
               }, [
                 d(p(pt)),
                 a("span", null, h(s.labels.more), 1)
-              ], 10, zt)
+              ], 10, $t)
             ])
           ]),
-          a("div", Gt, [
-            a("div", qt, [
-              a("label", { for: de.value }, h(s.labels.speechRate), 9, Nt),
+          a("div", Nt, [
+            a("div", Gt, [
+              a("label", { for: de.value }, h(s.labels.speechRate), 9, qt),
               a("select", {
                 id: de.value,
                 value: s.state.speechRate,
                 onChange: i[18] || (i[18] = (r) => g("rate", Number(r.target.value)))
               }, [
-                (v(!0), T(we, null, Ee(l.value, (r) => (v(), T("option", {
+                (y(!0), T(we, null, Ee(l.value, (r) => (y(), T("option", {
                   key: r.value,
                   value: r.value
                 }, h(r.label), 9, Kt))), 128))
               ], 40, Ut)
             ]),
-            s.state.statusMessage ? (v(), T("p", Zt, h(s.state.statusMessage), 1)) : A("", !0),
+            s.state.statusMessage ? (y(), T("p", Zt, h(s.state.statusMessage), 1)) : A("", !0),
             a("button", {
               class: "aging-assist-control is-danger",
               type: "button",
@@ -468,10 +470,10 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
           ])
         ])
       ], 10, Pt)) : A("", !0),
-      s.state.toolbarOpen && s.state.moreOpen ? (v(), T("aside", {
+      s.state.toolbarOpen && s.state.moreOpen ? (y(), T("aside", {
         key: 2,
         id: ge.value,
-        class: y(["aging-assist-more", s.position === "bottom" ? "is-bottom" : "is-top"]),
+        class: P(["aging-assist-more", s.position === "bottom" ? "is-bottom" : "is-top"]),
         "aria-labelledby": he.value
       }, [
         a("h2", { id: he.value }, h(s.labels.enhancementSettings), 9, Xt),
@@ -522,9 +524,9 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
           ])
         ])
       ], 10, Vt)) : A("", !0),
-      s.state.bigText ? (v(), T("section", {
+      s.state.bigText ? (y(), T("section", {
         key: 3,
-        class: y(["aging-assist-bigtext is-bottom", [
+        class: P(["aging-assist-bigtext is-bottom", [
           s.position === "top" ? "has-toolbar-top" : "has-toolbar-bottom",
           s.state.speech ? "is-reading" : "is-plain"
         ]]),
@@ -536,7 +538,7 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
             ref: c,
             onScroll: i[25] || (i[25] = (r) => U(r.currentTarget))
           }, [
-            (v(!0), T(we, null, Ee(De.value, (r, m) => (v(), T("span", {
+            (y(!0), T(we, null, Ee(Re.value, (r, m) => (y(), T("span", {
               key: `${m}-${r}`,
               class: "aging-assist-subtitle-char"
             }, h(r), 1))), 128))
@@ -559,14 +561,14 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
         ])
       ], 2)) : A("", !0),
       a("div", {
-        class: y(["aging-assist-crosshair-x", { "is-visible": s.state.crosshair }]),
+        class: P(["aging-assist-crosshair-x", { "is-visible": s.state.crosshair }]),
         "aria-hidden": "true"
       }, null, 2),
       a("div", {
-        class: y(["aging-assist-crosshair-y", { "is-visible": s.state.crosshair }]),
+        class: P(["aging-assist-crosshair-y", { "is-visible": s.state.crosshair }]),
         "aria-hidden": "true"
       }, null, 2),
-      s.state.confirming ? (v(), T("section", {
+      s.state.confirming ? (y(), T("section", {
         key: 4,
         ref_key: "confirmDialog",
         ref: f,
@@ -574,12 +576,12 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
         role: "dialog",
         "aria-modal": "true",
         "aria-labelledby": K.value,
-        "aria-describedby": z.value,
-        onKeydown: Ie
+        "aria-describedby": $.value,
+        onKeydown: ze
       }, [
         a("div", ls, [
           a("h2", { id: K.value }, h(s.labels.confirmTitle), 9, cs),
-          a("p", { id: z.value }, h(s.labels.confirmDescription), 9, us),
+          a("p", { id: $.value }, h(s.labels.confirmDescription), 9, us),
           a("div", hs, [
             a("button", {
               type: "button",
@@ -594,7 +596,7 @@ const Tt = ["data-theme"], yt = ["aria-label"], Pt = ["aria-label"], xt = { clas
           ])
         ])
       ], 40, rs)) : A("", !0)
-    ], 8, Tt));
+    ], 8, yt));
   }
 }), ps = "aging-assist", fs = "aging-assist-state", oe = {
   enabled: !1,
@@ -729,14 +731,14 @@ function ce(s) {
     typeof e[n] == "boolean" && Object.assign(t, { [n]: e[n] });
   }), typeof e.fontScale == "number" && Number.isFinite(e.fontScale) && (t.fontScale = re(e.fontScale, 1, 1.8)), typeof e.pageScale == "number" && Number.isFinite(e.pageScale) && (t.pageScale = re(e.pageScale, 1, 1.3)), typeof e.speechProgress == "number" && Number.isFinite(e.speechProgress) && (t.speechProgress = re(e.speechProgress, 0, 1)), vs.has(e.speechRate) && (t.speechRate = e.speechRate), typeof e.statusMessage == "string" && (t.statusMessage = e.statusMessage.slice(0, 240)), typeof e.currentText == "string" && (t.currentText = e.currentText.slice(0, 240)), typeof e.readingIndex == "number" && Number.isInteger(e.readingIndex) && (t.readingIndex = Math.max(-1, e.readingIndex)), t;
 }
-function Ts(s) {
+function ys(s) {
   const e = { ...s };
   return e.enabled || (e.toolbarOpen = !1, e.moreOpen = !1, e.confirming = !1, e.speech = !1, e.speechPaused = !1, e.speechProgress = 0), e.toolbarOpen || (e.moreOpen = !1), e.speech || (e.speechPaused = !1, e.speechProgress = 0), e;
 }
 function re(s, e, t) {
   return Number(Math.min(t, Math.max(e, s)).toFixed(2));
 }
-function ys(s) {
+function Ts(s) {
   try {
     const e = window.localStorage.getItem(s);
     return e ? ce(JSON.parse(e)) : {};
@@ -766,12 +768,12 @@ function ws(s, e = {}) {
   }), t;
 }
 function _(s) {
-  var z;
+  var $;
   if (!s || s.closest("[data-aging-assist-root]")) return "";
   const e = s.closest(
     "[data-aging-text], [data-aging-label], button, a, label, input, textarea, select, img, h1, h2, h3, h4, h5, h6, p, li, td, th, summary, [role='button'], [title], [aria-label]"
-  ) ?? s, t = e.closest("[data-aging-readable], [data-aging-text]"), n = t && t !== e && !ks(e) ? t : e, l = n.getAttribute("data-aging-text") || n.getAttribute("data-aging-label"), c = n.getAttribute("aria-label"), x = n.getAttribute("title"), f = n instanceof HTMLImageElement ? n.getAttribute("alt") : "", P = n instanceof HTMLInputElement || n instanceof HTMLTextAreaElement ? n.value || n.placeholder : n instanceof HTMLSelectElement ? ((z = n.selectedOptions[0]) == null ? void 0 : z.textContent) || n.value : "", K = n.textContent || "";
-  return Me(l || c || x || f || P || K);
+  ) ?? s, t = e.closest("[data-aging-readable], [data-aging-text]"), n = t && t !== e && !ks(e) ? t : e, l = n.getAttribute("data-aging-text") || n.getAttribute("data-aging-label"), c = n.getAttribute("aria-label"), b = n.getAttribute("title"), f = n instanceof HTMLImageElement ? n.getAttribute("alt") : "", x = n instanceof HTMLInputElement || n instanceof HTMLTextAreaElement ? n.value || n.placeholder : n instanceof HTMLSelectElement ? (($ = n.selectedOptions[0]) == null ? void 0 : $.textContent) || n.value : "", K = n.textContent || "";
+  return Me(l || c || b || f || x || K);
 }
 function Me(s) {
   return s.replace(/\s+/g, " ").replace(/[|_~`^*#<>[\]{}\\]/g, "").replace(/\s+/g, " ").trim().slice(0, 240);
@@ -829,16 +831,16 @@ class Ms {
     this.stop();
     const c = new SpeechSynthesisUtterance(e);
     c.lang = n, c.rate = t, c.pitch = 1, c.volume = 1;
-    const x = window.speechSynthesis.getVoices().find((f) => f.lang.toLowerCase().startsWith(n.slice(0, 2).toLowerCase()));
-    return x && (c.voice = x), c.onstart = () => {
+    const b = window.speechSynthesis.getVoices().find((f) => f.lang.toLowerCase().startsWith(n.slice(0, 2).toLowerCase()));
+    return b && (c.voice = b), c.onstart = () => {
       var f;
       return (f = l.onStart) == null ? void 0 : f.call(l);
     }, c.onboundary = (f) => {
-      var P;
-      (P = l.onBoundary) == null || P.call(l, Ds(f.charIndex, e.length));
+      var x;
+      (x = l.onBoundary) == null || x.call(l, Rs(f.charIndex, e.length));
     }, c.onend = () => {
-      var f, P;
-      this.utterance === c && ((f = l.onBoundary) == null || f.call(l, 1), (P = l.onEnd) == null || P.call(l), this.utterance = null);
+      var f, x;
+      this.utterance === c && ((f = l.onBoundary) == null || f.call(l, 1), (x = l.onEnd) == null || x.call(l), this.utterance = null);
     }, c.onerror = () => {
       var f;
       this.utterance === c && ((f = l.onError) == null || f.call(l), this.utterance = null);
@@ -857,7 +859,7 @@ class Ms {
     this.utterance && (this.utterance.onstart = null, this.utterance.onboundary = null, this.utterance.onend = null, this.utterance.onerror = null);
   }
 }
-function Ds(s, e) {
+function Rs(s, e) {
   return e ? Math.min(1, Math.max(0, s / e)) : 0;
 }
 let k = null;
@@ -891,6 +893,7 @@ class ue {
     u(this, "fontScaleElements", /* @__PURE__ */ new Map());
     u(this, "fontScaleObserver", null);
     u(this, "fontScaleFrame", 0);
+    u(this, "fontScalePendingRoots", /* @__PURE__ */ new Set());
     u(this, "onDocumentReady", () => {
       this.pendingMount = !1, this.mount();
     });
@@ -943,14 +946,14 @@ class ue {
       ignoredSelector: e.ignoredSelector ?? "[data-aging-ignore], [data-aging-assist-root], .qunar-assist-hide",
       ...e
     };
-    const t = this.options.persist ? ys(this.options.storageKey) : {}, { bigTextDock: n, ...l } = t, {
+    const t = this.options.persist ? Ts(this.options.storageKey) : {}, { bigTextDock: n, ...l } = t, {
       bigTextDock: c,
-      ...x
+      ...b
     } = e.initialState ?? {};
     this.state = Xe({
       ...oe,
       ...l,
-      ...ce(x),
+      ...ce(b),
       currentText: "",
       confirming: !1,
       toolbarOpen: !1,
@@ -1042,7 +1045,7 @@ class ue {
   setState(e) {
     const t = ce(e);
     if (!Object.keys(t).length) return;
-    const n = this.getState(), l = Ts({ ...this.state, ...t });
+    const n = this.getState(), l = ys({ ...this.state, ...t });
     Object.assign(this.state, l), this.reconcileStateEffects(n, l), this.applyEffects(), this.persist(), this.notify(), this.emit("change", t);
   }
   subscribe(e) {
@@ -1070,16 +1073,16 @@ class ue {
         this.reset();
         break;
       case "fontUp":
-        this.setState({ fontScale: $(this.state.fontScale + 0.1, 1, 1.8) });
+        this.setState({ fontScale: I(this.state.fontScale + 0.1, 1, 1.8) });
         break;
       case "fontDown":
-        this.setState({ fontScale: $(this.state.fontScale - 0.1, 1, 1.8) });
+        this.setState({ fontScale: I(this.state.fontScale - 0.1, 1, 1.8) });
         break;
       case "zoomIn":
-        this.setState({ pageScale: $(this.state.pageScale + 0.05, 1, 1.3) });
+        this.setState({ pageScale: I(this.state.pageScale + 0.05, 1, 1.3) });
         break;
       case "zoomOut":
-        this.setState({ pageScale: $(this.state.pageScale - 0.05, 1, 1.3) });
+        this.setState({ pageScale: I(this.state.pageScale - 0.05, 1, 1.3) });
         break;
       case "toggle":
         Ce(t) && this.toggle(t);
@@ -1134,7 +1137,7 @@ class ue {
   readOffset(e) {
     const t = Es();
     if (!t.length) return;
-    const n = $(this.state.readingIndex + e, 0, t.length - 1), l = t[n], c = _(l);
+    const n = I(this.state.readingIndex + e, 0, t.length - 1), l = t[n], c = _(l);
     this.highlightTarget(l), this.lastSpokenText = c, this.setState({
       readingIndex: n,
       currentText: c,
@@ -1214,7 +1217,7 @@ class ue {
     this.startSpeechProgressClock(e);
   }
   updateSpeechProgress(e) {
-    const t = Math.max(this.state.speechProgress, $(e, 0, 1));
+    const t = Math.max(this.state.speechProgress, I(e, 0, 1));
     Math.abs(this.state.speechProgress - t) < 0.01 && t !== 0 && t !== 1 || (this.state.speechProgress = t, this.notify());
   }
   startSpeechProgressClock(e) {
@@ -1276,33 +1279,47 @@ class ue {
   }
   startFontScaleObserver() {
     var e;
-    typeof MutationObserver > "u" || !document.body || ((e = this.fontScaleObserver) == null || e.disconnect(), this.fontScaleObserver = new MutationObserver(() => {
-      !this.state.enabled || this.state.fontScale <= 1 || this.fontScaleFrame || (this.fontScaleFrame = window.requestAnimationFrame(() => {
-        this.fontScaleFrame = 0, this.syncFontScale();
+    typeof MutationObserver > "u" || !document.body || ((e = this.fontScaleObserver) == null || e.disconnect(), this.fontScaleObserver = new MutationObserver((t) => {
+      if (!this.state.enabled || this.state.fontScale <= 1) {
+        this.fontScalePendingRoots.clear();
+        return;
+      }
+      t.forEach((n) => {
+        n.addedNodes.forEach((l) => {
+          l instanceof HTMLElement && this.fontScalePendingRoots.add(l);
+        });
+      }), !(this.fontScaleFrame || !this.fontScalePendingRoots.size) && (this.fontScaleFrame = window.requestAnimationFrame(() => {
+        this.fontScaleFrame = 0;
+        const n = Array.from(this.fontScalePendingRoots);
+        this.fontScalePendingRoots.clear(), this.syncFontScale(n);
       }));
     }), this.fontScaleObserver.observe(document.body, { childList: !0, subtree: !0 }));
   }
   stopFontScaleObserver() {
     var e;
-    (e = this.fontScaleObserver) == null || e.disconnect(), this.fontScaleObserver = null, this.fontScaleFrame && window.cancelAnimationFrame(this.fontScaleFrame), this.fontScaleFrame = 0, this.restoreFontScale();
+    (e = this.fontScaleObserver) == null || e.disconnect(), this.fontScaleObserver = null, this.fontScaleFrame && window.cancelAnimationFrame(this.fontScaleFrame), this.fontScaleFrame = 0, this.fontScalePendingRoots.clear(), this.restoreFontScale();
   }
-  syncFontScale() {
+  syncFontScale(e) {
     if (!this.state.enabled || this.state.fontScale <= 1) {
       this.restoreFontScale();
       return;
     }
-    Array.from(document.body.querySelectorAll("*")).forEach((t) => {
-      if (!this.shouldScaleFontElement(t) || this.fontScaleElements.has(t)) return;
-      const n = Number.parseFloat(window.getComputedStyle(t).fontSize);
-      !Number.isFinite(n) || n <= 0 || this.fontScaleElements.set(t, {
-        value: t.style.getPropertyValue("font-size"),
-        priority: t.style.getPropertyPriority("font-size"),
-        baseSize: n
+    (e ? e.flatMap((n) => [n, ...Array.from(n.querySelectorAll("*"))]) : Array.from(document.body.querySelectorAll("*"))).forEach((n) => {
+      if (!this.shouldScaleFontElement(n) || this.fontScaleElements.has(n)) return;
+      const l = Number.parseFloat(window.getComputedStyle(n).fontSize), c = n.parentElement, b = c ? Number.parseFloat(window.getComputedStyle(c).fontSize) : Number.NaN;
+      Number.isFinite(b) && Math.abs(l - b) < 0.01 || !Number.isFinite(l) || l <= 0 || this.fontScaleElements.set(n, {
+        value: n.style.getPropertyValue("font-size"),
+        priority: n.style.getPropertyPriority("font-size"),
+        baseSize: l
       });
-    }), this.fontScaleElements.forEach((t, n) => {
-      !n.isConnected || !this.shouldScaleFontElement(n) || n.style.setProperty(
+    }), this.fontScaleElements.forEach((n, l) => {
+      if (!l.isConnected) {
+        this.fontScaleElements.delete(l);
+        return;
+      }
+      l.style.setProperty(
         "font-size",
-        `${(t.baseSize * this.state.fontScale).toFixed(2)}px`,
+        `${(n.baseSize * this.state.fontScale).toFixed(2)}px`,
         "important"
       );
     });
@@ -1396,7 +1413,7 @@ class ue {
     return k && !k.destroyed ? k : null;
   }
 }
-function $(s, e, t) {
+function I(s, e, t) {
   return Number(Math.min(t, Math.max(e, s)).toFixed(2));
 }
 function As(s, e) {
@@ -1418,7 +1435,7 @@ function Ce(s) {
     "mistakeGuard"
   ].includes(s);
 }
-const Fs = "0.1.0";
+const Ds = "0.1.1";
 function ee(s = {}) {
   return ue.getActiveInstance() ?? new ue(s);
 }
@@ -1427,11 +1444,11 @@ typeof window < "u" && (window.AgingAssist = {
   create: ee,
   init: ee,
   AgingAssist: ue,
-  version: Fs
+  version: Ds
 });
 export {
   ue as AgingAssist,
-  Fs as VERSION,
+  Ds as VERSION,
   Bs as create,
   ee as createAgingAssist,
   Hs as init
