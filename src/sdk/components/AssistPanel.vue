@@ -85,6 +85,15 @@ const shouldFollowSpeechScroll = computed(
 const displayedSubtitle = ref(bigTextContent.value);
 const pinyinParts = ref<PinyinPart[]>([]);
 const isPinyinMode = computed(() => props.state.subtitleMode === "pinyin");
+const isTraditionalMode = computed(() => props.state.subtitleMode === "traditional");
+const scriptToggleLabel = computed(() => {
+  if (isPinyinMode.value) {
+    return `${props.labels.simplifiedSubtitle.slice(0, 1)}/${props.labels.traditionalSubtitle.slice(0, 1)}`;
+  }
+  return isTraditionalMode.value
+    ? props.labels.simplifiedSubtitle
+    : props.labels.traditionalSubtitle;
+});
 const subtitleText = computed(() => (isPinyinMode.value ? bigTextContent.value : displayedSubtitle.value));
 const subtitleChars = computed(() => Array.from(subtitleText.value));
 const subtitlePinyin = computed(() => {
@@ -94,11 +103,12 @@ const subtitlePinyin = computed(() => {
     return chars.map((char) => (chars.length === 1 ? part.pinyin : ""));
   });
 });
-const subtitleModes = computed<Array<{ label: string; value: SubtitleMode }>>(() => [
-  { label: props.labels.simplifiedSubtitle, value: "simplified" },
-  { label: props.labels.traditionalSubtitle, value: "traditional" },
-  { label: props.labels.pinyinSubtitle, value: "pinyin" }
-]);
+function toggleSubtitleScript() {
+  action(
+    "subtitleMode",
+    isTraditionalMode.value || isPinyinMode.value ? "simplified" : "traditional"
+  );
+}
 
 function action(name: string, value?: unknown) {
   emit("action", name, value);
@@ -791,14 +801,22 @@ onBeforeUnmount(() => {
         <div class="aging-assist-subtitle-mode" role="group" :aria-label="labels.subtitleMode">
           <span>{{ labels.subtitleMode }}</span>
           <button
-            v-for="mode in subtitleModes"
-            :key="mode.value"
             type="button"
-            :class="{ 'is-active': state.subtitleMode === mode.value }"
-            :aria-pressed="state.subtitleMode === mode.value"
-            @click="action('subtitleMode', mode.value)"
+            :class="{ 'is-active': !isPinyinMode }"
+            :aria-label="`${labels.simplifiedSubtitle}/${labels.traditionalSubtitle}`"
+            :title="`${labels.simplifiedSubtitle}/${labels.traditionalSubtitle}`"
+            :aria-pressed="!isPinyinMode"
+            @click="toggleSubtitleScript"
           >
-            {{ mode.label }}
+            {{ scriptToggleLabel }}
+          </button>
+          <button
+            type="button"
+            :class="{ 'is-active': isPinyinMode }"
+            :aria-pressed="isPinyinMode"
+            @click="action('subtitleMode', 'pinyin')"
+          >
+            {{ labels.pinyinSubtitle }}
           </button>
         </div>
         <button
