@@ -13,9 +13,11 @@ import "./styles/panel.css";
 import type {
   AgingAssistInstance,
   AssistEvent,
+  AssistContrastMode,
   AssistLabels,
   AssistOptions,
   AssistState,
+  AssistStateInput,
   AssistStateKey,
   AssistToggleKey,
   SpeechRate
@@ -198,6 +200,9 @@ export class AgingAssist implements AgingAssistInstance {
       statusMessage: "",
       readingIndex: -1
     }) as AssistState;
+    if (this.state.highContrast && this.state.contrastMode === "standard") {
+      this.state.contrastMode = "white-black-blue";
+    }
     this.labels = {
       ...(this.options.locale === "en-US" ? labelsEnUs : labelsZhCn),
       ...options.labels
@@ -356,9 +361,16 @@ export class AgingAssist implements AgingAssistInstance {
     return { ...this.state };
   }
 
-  setState(patch: Partial<AssistState>): void {
+  setState(patch: Partial<AssistStateInput>): void {
     const normalizedPatch = normalizeStatePatch(patch);
     if (!Object.keys(normalizedPatch).length) return;
+    if (normalizedPatch.contrastMode) {
+      normalizedPatch.highContrast = normalizedPatch.contrastMode !== "standard";
+    } else if (typeof normalizedPatch.highContrast === "boolean") {
+      normalizedPatch.contrastMode = normalizedPatch.highContrast
+        ? "white-black-blue"
+        : "standard";
+    }
     const previousState = this.getState();
     const nextState = enforceStateInvariants({ ...this.state, ...normalizedPatch });
     Object.assign(this.state, nextState);
@@ -464,6 +476,14 @@ export class AgingAssist implements AgingAssistInstance {
   toggle(key: AssistToggleKey): void {
     const value = this.state[key];
     if (typeof value !== "boolean") return;
+    if (key === "highContrast") {
+      const nextMode = nextContrastMode(this.state.contrastMode);
+      this.setState({
+        contrastMode: nextMode,
+        highContrast: nextMode !== "standard"
+      });
+      return;
+    }
     if (key === "speech") {
       if (value) {
         this.speech.stop();
@@ -769,6 +789,7 @@ export class AgingAssist implements AgingAssistInstance {
 
     root.dataset.agingEnabled = String(this.state.enabled);
     root.dataset.agingContrast = String(this.state.highContrast);
+    root.dataset.agingContrastTheme = this.state.contrastMode;
     root.dataset.agingSimplified = String(this.state.simplified);
     root.dataset.agingLargeCursor = String(this.state.largeCursor);
     root.dataset.agingFocus = String(this.state.focusEnhance);
@@ -905,6 +926,7 @@ export class AgingAssist implements AgingAssistInstance {
     [
       "agingEnabled",
       "agingContrast",
+      "agingContrastTheme",
       "agingSimplified",
       "agingLargeCursor",
       "agingFocus",
@@ -937,6 +959,7 @@ export class AgingAssist implements AgingAssistInstance {
       fontScale: this.state.fontScale,
       pageScale: this.state.pageScale,
       highContrast: this.state.highContrast,
+      contrastMode: this.state.contrastMode,
       simplified: this.state.simplified,
       largeCursor: this.state.largeCursor,
       crosshair: this.state.crosshair,
@@ -1010,6 +1033,17 @@ export class AgingAssist implements AgingAssistInstance {
 
 function clamp(value: number, min: number, max: number): number {
   return Number(Math.min(max, Math.max(min, value)).toFixed(2));
+}
+
+function nextContrastMode(mode: AssistContrastMode): AssistContrastMode {
+  const modes: AssistContrastMode[] = [
+    "standard",
+    "white-black-blue",
+    "blue-yellow-white",
+    "yellow-black-blue",
+    "black-yellow-white"
+  ];
+  return modes[(modes.indexOf(mode) + 1) % modes.length] ?? "standard";
 }
 
 function estimateSpeechDuration(text: string, rate: SpeechRate): number {

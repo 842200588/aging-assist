@@ -1,6 +1,6 @@
 import "./styles/effects.css";
 import "./styles/panel.css";
-import type { AgingAssistInstance, AssistOptions, AssistState, AssistStateKey, AssistToggleKey } from "./types";
+import type { AgingAssistInstance, AssistOptions, AssistState, AssistStateInput, AssistStateKey, AssistToggleKey } from "./types";
 export declare class AgingAssist implements AgingAssistInstance {
     state: AssistState;
     private readonly options;
@@ -51,7 +51,7 @@ export declare class AgingAssist implements AgingAssistInstance {
     pauseSpeech(): void;
     resumeSpeech(): void;
     getState(): AssistState;
-    setState(patch: Partial<AssistState>): void;
+    setState(patch: Partial<AssistStateInput>): void;
     subscribe(listener: (state: AssistState) => void): () => void;
     subscribeKey<K extends AssistStateKey>(key: K, listener: (value: AssistState[K], state: AssistState) => void): () => void;
     private handleAction;

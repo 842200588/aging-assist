@@ -10,7 +10,8 @@
 
 - 一键开启、收起、重置、退出服务
 - 文字放大 / 缩小，页面整体缩放
-- 高对比、简洁模式、大鼠标、十字线
+- 配色切换、大鼠标、十字线
+- 配色与参考无障碍工具保持一致：白底黑字蓝链接、蓝底黄字白链接、黄底黑字蓝链接、黑底黄字白链接，以及页面原始配色；旧版 `highContrast` 调用仍可用，会按顺序循环切换
 - 鼠标、触屏和键盘焦点指读，大字幕、简繁体 / 拼音显示、语音朗读、语速切换
 - 上一段 / 下一段阅读队列
 - 焦点增强、点击目标增强、表单辅助
@@ -84,7 +85,7 @@ assist.speak("欢迎使用适老化服务");
 assist.pauseSpeech();
 assist.resumeSpeech();
 
-assist.setState({ highContrast: true, mistakeGuard: true });
+assist.setState({ contrastMode: "black-yellow-white", mistakeGuard: true });
 const state = assist.getState();
 
 const stopAll = assist.subscribe((nextState) => {

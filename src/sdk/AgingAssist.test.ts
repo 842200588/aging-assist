@@ -137,7 +137,7 @@ describe("AgingAssist", () => {
     await flushUi();
 
     const contrast = Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find(
-      (button) => button.textContent?.includes("高对比")
+      (button) => button.textContent?.includes("配色")
     );
     expect(contrast?.getAttribute("aria-pressed")).toBe("false");
     contrast?.click();
@@ -160,6 +160,42 @@ describe("AgingAssist", () => {
     expect(document.documentElement.dataset.agingContrast).toBe("true");
     expect(root?.contains(panel)).toBe(true);
     expect(panel?.querySelectorAll(".aging-assist-switch")).toHaveLength(4);
+  });
+
+  it("cycles the color scheme and keeps the legacy highContrast flag aligned", () => {
+    assist = new AgingAssist({ persist: false });
+    expect(assist.getState()).toMatchObject({
+      highContrast: false,
+      contrastMode: "standard"
+    });
+
+    assist.toggle("highContrast");
+    expect(assist.getState()).toMatchObject({
+      highContrast: true,
+      contrastMode: "white-black-blue"
+    });
+    assist.toggle("highContrast");
+    expect(assist.getState().contrastMode).toBe("blue-yellow-white");
+    assist.toggle("highContrast");
+    expect(assist.getState().contrastMode).toBe("yellow-black-blue");
+    assist.toggle("highContrast");
+    expect(assist.getState().contrastMode).toBe("black-yellow-white");
+    assist.toggle("highContrast");
+    expect(assist.getState()).toMatchObject({
+      highContrast: false,
+      contrastMode: "standard"
+    });
+  });
+
+  it("maps legacy contrast mode values to the matching reference schemes", () => {
+    assist = new AgingAssist({
+      persist: false,
+      initialState: { contrastMode: "black-yellow" }
+    });
+    expect(assist.getState().contrastMode).toBe("black-yellow-white");
+
+    assist.setState({ contrastMode: "blue" });
+    expect(assist.getState().contrastMode).toBe("blue-yellow-white");
   });
 
   it("provides a labelled keyboard-dismissible confirmation dialog", async () => {

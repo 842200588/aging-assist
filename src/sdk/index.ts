@@ -7,10 +7,13 @@ export { AgingAssist };
 export type {
   AgingAssistInstance,
   AssistEvent,
+  AssistContrastMode,
+  AssistContrastModeInput,
   AssistLabels,
   AssistLocale,
   AssistOptions,
   AssistState,
+  AssistStateInput,
   AssistStateKey,
   AssistTheme,
   AssistToggleKey,

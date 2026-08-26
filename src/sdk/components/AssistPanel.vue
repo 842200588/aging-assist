@@ -615,6 +615,7 @@ onBeforeUnmount(() => {
               type="button"
               :class="{ 'is-active': state.highContrast }"
               :aria-pressed="state.highContrast"
+              :title="labels.highContrast"
               @click="action('toggle', 'highContrast')"
             >
               <Contrast />
@@ -663,6 +664,8 @@ onBeforeUnmount(() => {
           </div>
 
           <div class="aging-assist-group">
+            <!-- 简洁模式暂时隐藏，保留状态和 API 兼容已有接入。 -->
+            <!--
             <button
               class="aging-assist-control"
               type="button"
@@ -673,6 +676,7 @@ onBeforeUnmount(() => {
               <Eye />
               <span>{{ labels.simplified }}</span>
             </button>
+            -->
             <button
               class="aging-assist-control"
               type="button"

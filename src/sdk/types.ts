@@ -2,6 +2,16 @@ export type AssistLocale = "zh-CN" | "en-US";
 
 export type AssistTheme = "warm" | "official" | "dark";
 
+export type AssistContrastMode =
+  | "standard"
+  | "white-black-blue"
+  | "blue-yellow-white"
+  | "yellow-black-blue"
+  | "black-yellow-white";
+
+export type LegacyAssistContrastMode = "black-yellow" | "blue" | "gray";
+export type AssistContrastModeInput = AssistContrastMode | LegacyAssistContrastMode;
+
 export type SpeechRate = 0.75 | 1 | 1.25 | 1.5;
 
 export type SubtitleMode = "simplified" | "traditional" | "pinyin";
@@ -27,6 +37,7 @@ export interface AssistState {
   fontScale: number;
   pageScale: number;
   highContrast: boolean;
+  contrastMode: AssistContrastMode;
   simplified: boolean;
   largeCursor: boolean;
   crosshair: boolean;
@@ -45,6 +56,10 @@ export interface AssistState {
   currentText: string;
   readingIndex: number;
 }
+
+export type AssistStateInput = Omit<AssistState, "contrastMode"> & {
+  contrastMode: AssistContrastModeInput;
+};
 
 export type AssistStateKey = keyof AssistState;
 
@@ -102,7 +117,7 @@ export interface AssistOptions {
   namespace?: string;
   storageKey?: string;
   persist?: boolean;
-  initialState?: Partial<AssistState>;
+  initialState?: Partial<AssistStateInput>;
   locale?: AssistLocale;
   theme?: AssistTheme;
   labels?: Partial<AssistLabels>;
@@ -146,7 +161,7 @@ export interface AgingAssistInstance {
   resumeSpeech: () => void;
   toggle: (key: AssistToggleKey) => void;
   getState: () => AssistState;
-  setState: (patch: Partial<AssistState>) => void;
+  setState: (patch: Partial<AssistStateInput>) => void;
   subscribe: (listener: (state: AssistState) => void) => () => void;
   subscribeKey: <K extends AssistStateKey>(
     key: K,

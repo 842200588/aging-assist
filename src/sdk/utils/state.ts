@@ -1,4 +1,10 @@
-import type { AssistState, SpeechRate, SubtitleMode } from "../types";
+import type {
+  AssistContrastMode,
+  AssistContrastModeInput,
+  AssistState,
+  SpeechRate,
+  SubtitleMode
+} from "../types";
 
 const booleanKeys = [
   "enabled",
@@ -21,6 +27,22 @@ const booleanKeys = [
 
 const speechRates = new Set<SpeechRate>([0.75, 1, 1.25, 1.5]);
 const subtitleModes = new Set<SubtitleMode>(["simplified", "traditional", "pinyin"]);
+const contrastModes = new Set<AssistContrastMode>([
+  "standard",
+  "white-black-blue",
+  "blue-yellow-white",
+  "yellow-black-blue",
+  "black-yellow-white"
+]);
+const legacyContrastModes = new Set<AssistContrastModeInput>(["black-yellow", "blue", "gray"]);
+
+function normalizeContrastMode(value: unknown): AssistContrastMode | undefined {
+  if (contrastModes.has(value as AssistContrastMode)) return value as AssistContrastMode;
+  if (!legacyContrastModes.has(value as AssistContrastModeInput)) return undefined;
+  if (value === "black-yellow") return "black-yellow-white";
+  if (value === "blue") return "blue-yellow-white";
+  return "yellow-black-blue";
+}
 
 export function normalizeStatePatch(input: unknown): Partial<AssistState> {
   if (!input || typeof input !== "object" || Array.isArray(input)) return {};
@@ -39,6 +61,8 @@ export function normalizeStatePatch(input: unknown): Partial<AssistState> {
   if (typeof source.pageScale === "number" && Number.isFinite(source.pageScale)) {
     patch.pageScale = clamp(source.pageScale, 1, 1.3);
   }
+  const contrastMode = normalizeContrastMode(source.contrastMode);
+  if (contrastMode) patch.contrastMode = contrastMode;
   if (typeof source.speechProgress === "number" && Number.isFinite(source.speechProgress)) {
     patch.speechProgress = clamp(source.speechProgress, 0, 1);
   }

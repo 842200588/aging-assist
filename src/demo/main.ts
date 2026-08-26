@@ -10,7 +10,7 @@ const DemoApp = defineComponent({
 
     const syncAssistStatus = (state: AssistState) => {
       status.value = state.enabled ? "已开启" : "未开启";
-      mode.value = state.highContrast ? "高对比模式" : state.bigText ? "大字幕模式" : "标准模式";
+      mode.value = state.contrastMode !== "standard" ? "配色模式" : state.bigText ? "大字幕模式" : "标准模式";
     };
 
     onMounted(() => {
@@ -42,7 +42,7 @@ const DemoApp = defineComponent({
             h(
               "p",
               { class: "lead" },
-              "面向政务、医院、社区服务和传统 CMS 页面，提供大字、高对比、朗读、指读、十字线、鼠标增强、表单辅助和防误触确认。"
+              "面向政务、医院、社区服务和传统 CMS 页面，提供大字、配色、朗读、指读、十字线、鼠标增强、表单辅助和防误触确认。"
             ),
             h("div", { class: "hero-actions" }, [
               h("button", { id: "assist-open", class: "cta", type: "button" }, "打开适老化"),
@@ -71,7 +71,7 @@ const DemoApp = defineComponent({
               ),
               h(
                 "p",
-                "把鼠标移到正文、表单和按钮上，可以测试指读、大字幕和朗读；打开高对比可以检查页面可读性；开启防误触后点击提交，会先出现确认弹窗。"
+              "把鼠标移到正文、表单和按钮上，可以测试指读、大字幕和朗读；打开配色可以检查不同页面主题；开启防误触后点击提交，会先出现确认弹窗。"
               ),
               h("div", { class: "notice", title: "温馨提示：办理前请准备身份证和手机号" }, [
                 h("strong", "温馨提示"),
@@ -107,8 +107,7 @@ const DemoApp = defineComponent({
                 {
                   class: "danger",
                   type: "button",
-                  "data-aging-danger": "true",
-                  "data-aging-text": "提交申请，这是需要确认的危险操作"
+                  "data-aging-danger": "true"
                 },
                 "提交申请"
               )
