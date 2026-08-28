@@ -526,15 +526,18 @@ onBeforeUnmount(() => {
       <span>{{ labels.launcher }}</span>
     </button>
 
-    <section
-      v-if="state.toolbarOpen"
-      ref="toolbar"
-      class="aging-assist-toolbar"
-      :class="position === 'bottom' ? 'is-bottom' : 'is-top'"
-      role="toolbar"
-      aria-orientation="horizontal"
-      :aria-label="labels.launcher"
+    <Transition
+      :name="position === 'bottom' ? 'aging-toolbar-slide-bottom' : 'aging-toolbar-slide-top'"
     >
+      <section
+        v-if="state.toolbarOpen"
+        ref="toolbar"
+        class="aging-assist-toolbar"
+        :class="position === 'bottom' ? 'is-bottom' : 'is-top'"
+        role="toolbar"
+        aria-orientation="horizontal"
+        :aria-label="labels.launcher"
+      >
       <div class="aging-assist-shell">
         <div class="aging-assist-brand">
           <div class="aging-assist-mark" aria-hidden="true">
@@ -726,7 +729,8 @@ onBeforeUnmount(() => {
           </button>
         </div>
       </div>
-    </section>
+      </section>
+    </Transition>
 
     <aside
       v-if="state.toolbarOpen && state.moreOpen"

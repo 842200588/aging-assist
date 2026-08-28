@@ -25,7 +25,8 @@ export function getReadableText(target: Element | null): string {
   const semanticTarget =
     target.closest<HTMLElement>(
       "[data-aging-text], [data-aging-label], button, a, label, input, textarea, select, img, h1, h2, h3, h4, h5, h6, p, li, td, th, summary, [role='button'], [title], [aria-label]"
-    ) ?? target;
+    ) ?? (target instanceof HTMLElement ? target : target.parentElement);
+  if (!semanticTarget) return "";
   const readable = semanticTarget.closest<HTMLElement>("[data-aging-readable], [data-aging-text]");
   const source =
     readable && readable !== semanticTarget && !isFormControl(semanticTarget)
@@ -36,14 +37,117 @@ export function getReadableText(target: Element | null): string {
   const title = source.getAttribute("title");
   const alt =
     source instanceof HTMLImageElement ? source.getAttribute("alt") : "";
-  const value =
-    source instanceof HTMLInputElement || source instanceof HTMLTextAreaElement
-      ? source.value || source.placeholder
-      : source instanceof HTMLSelectElement
-        ? source.selectedOptions[0]?.textContent || source.value
-        : "";
+  const linkedImageAlt =
+    source instanceof HTMLAnchorElement
+      ? source.querySelector("img")?.getAttribute("alt") || ""
+      : "";
+  const value = getControlValue(source);
   const text = source.textContent || "";
-  return cleanText(explicit || ariaLabel || title || alt || value || text);
+  const content = explicit || ariaLabel || title || alt || linkedImageAlt || value || text;
+  if (source instanceof HTMLButtonElement) {
+    return cleanText(`${content}按钮`);
+  }
+  const semantic = getSemanticPrefix(source);
+  if (isFormControl(source) && !(source instanceof HTMLButtonElement)) {
+    return cleanText(semantic.replace(/，$/, ""));
+  }
+  return cleanText(`${semantic}${content}`);
+}
+
+function getSemanticPrefix(source: HTMLElement): string {
+  const parts: string[] = [];
+  const link = source instanceof HTMLAnchorElement ? source : source.closest("a");
+
+  if (link) {
+    if (link.target === "_blank") parts.push("打开窗口");
+    if (isExternalLink(link)) parts.push("外部链接");
+    if (source instanceof HTMLImageElement || link.querySelector("img")) parts.push("图片");
+    else parts.push("链接");
+  } else if (source instanceof HTMLImageElement) {
+    parts.push("图片");
+  }
+
+  if (source instanceof HTMLInputElement) {
+    const label = getControlLabel(source);
+    if (["button", "submit", "reset"].includes(source.type)) {
+      return `${label || source.value || (source.type === "reset" ? "重置" : "提交")}按钮，`;
+    }
+    if (source.type === "radio" || source.type === "checkbox") {
+      const type = source.type === "radio" ? "单选按钮" : "复选框";
+      return `${label}${type}，当前${source.checked ? "已选中" : "未选中"}，`;
+    }
+    const labelPrefix = label ? `${label}：` : "";
+    parts.push(`${labelPrefix}${getInputTypeLabel(source)}`);
+    if (source.type === "password") {
+      parts.push(`当前${source.value ? "已填写" : "未填写"}`);
+    } else {
+      parts.push(`当前内容为${source.value || "空"}`);
+    }
+  } else if (source instanceof HTMLTextAreaElement) {
+    const label = getControlLabel(source);
+    parts.push(`${label ? `${label}：` : ""}多行文本输入框`);
+    parts.push(`当前内容为${source.value || "空"}`);
+  } else if (source instanceof HTMLSelectElement) {
+    const selected = cleanText(source.selectedOptions[0]?.textContent || source.value || "空");
+    const label = getControlLabel(source);
+    parts.push(`${label ? `${label}：` : ""}列表框`);
+    parts.push(`当前选中项为${selected}`);
+  }
+  return parts.length ? `${parts.join("，")}，` : "";
+}
+
+function getControlValue(source: HTMLElement): string {
+  if (source instanceof HTMLInputElement || source instanceof HTMLTextAreaElement) {
+    return source.type === "password" ? "" : source.value || source.placeholder;
+  }
+  if (source instanceof HTMLSelectElement) {
+    return source.selectedOptions[0]?.textContent || source.value;
+  }
+  return "";
+}
+
+function getControlLabel(
+  source: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+): string {
+  const explicit = source.getAttribute("aria-label") || source.getAttribute("data-aging-label");
+  if (explicit) return cleanText(explicit);
+  const label = source.labels?.[0] || source.closest("label");
+  if (!label) return "";
+  const clone = label.cloneNode(true) as HTMLElement;
+  clone.querySelectorAll("input, textarea, select, button").forEach((control) => control.remove());
+  return cleanText(clone.textContent || "").replace(/[：:，,\s]+$/, "");
+}
+
+function getInputTypeLabel(source: HTMLInputElement): string {
+  switch (source.type) {
+    case "password":
+      return "密码输入框";
+    case "radio":
+      return "单选按钮";
+    case "checkbox":
+      return "复选框";
+    case "file":
+      return "文件选择框";
+    case "tel":
+      return "电话输入框";
+    case "email":
+      return "邮箱输入框";
+    case "number":
+      return "数字输入框";
+    default:
+      return "文本输入框";
+  }
+}
+
+function isExternalLink(link: HTMLAnchorElement): boolean {
+  const href = link.getAttribute("href");
+  if (!href || href.startsWith("#") || href.startsWith("/")) return false;
+  if (/^(mailto:|tel:|javascript:)/i.test(href)) return true;
+  try {
+    return new URL(link.href, window.location.href).hostname !== window.location.hostname;
+  } catch {
+    return false;
+  }
 }
 
 export function cleanText(text: string): string {

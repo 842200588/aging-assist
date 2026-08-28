@@ -92,6 +92,36 @@
   top: 0;
 }
 
+.aging-toolbar-slide-top-enter-active,
+.aging-toolbar-slide-top-leave-active,
+.aging-toolbar-slide-bottom-enter-active,
+.aging-toolbar-slide-bottom-leave-active {
+  transition:
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease;
+}
+
+.aging-toolbar-slide-top-enter-from,
+.aging-toolbar-slide-top-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.aging-toolbar-slide-bottom-enter-from,
+.aging-toolbar-slide-bottom-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aging-toolbar-slide-top-enter-active,
+  .aging-toolbar-slide-top-leave-active,
+  .aging-toolbar-slide-bottom-enter-active,
+  .aging-toolbar-slide-bottom-leave-active {
+    transition-duration: 1ms;
+  }
+}
+
 .aging-assist-shell {
   display: grid;
   grid-template-columns: auto 1fr auto;
