@@ -13,6 +13,7 @@ pnpm-debug.log*
 
 .playwright-cli/
 coverage/
+site/
 
 .DS_Store
 Thumbs.db
